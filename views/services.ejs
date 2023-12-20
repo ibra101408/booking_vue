@@ -1,0 +1,19 @@
+<div class="container service_container">
+    <h4 class="transitional transitional_services"><%= translations.our %></h4>
+    <h1 class="heading"><%= translations.services %></h1>
+    <div class="divider"></div>
+    <p class="text text_service">
+        <%= translations.saloon_text_services %>
+    </p>
+    <div class="service_grid_container">
+        <% translations.servicesArray.forEach(service => {
+        %>
+            <div class="services_box">
+                <img class="image" src="<%= service.imageSrc %>" alt="<%= service.name %>"/>
+                <h3 class="service_name"><%= service.name %></h3>
+                <p class="service_text"><%= service.description %></p>
+            </div>
+        <% }); %>
+    </div>
+</div>
+

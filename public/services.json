@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "LÕIKUS",
+    "imageSrc": "./assets/service1.png",
+    "description": "Juuste lõikus pole mitte ainult esmavajalik juuste hooldamise põhiprotseduur, vaid ka eneseväljenduse viis ning teie imago ja stiili lähtepunkt."
+  },
+  {
+    "id": 2,
+    "name": "SOENG",
+    "imageSrc": "./assets/service2.png",
+    "description": "Tänu oma universaalsusele on soeng alati olnud populaarseim juuksuriteenus. Soengu tegemine sisaldab väga erinevad operatsioone, mis aitavad anda juustele soovitud vormi ja mahu."
+  },
+  {
+    "id": 3,
+    "name": "VÄRVIMINE",
+    "imageSrc": "./assets/service3.png",
+    "description": "Juuste värvimine on juuksuriteenustest populaarsuselt järgmine. Talle on samuti omane pidev täiustumine ja areng."
+  },
+  {
+    "id": 4,
+    "name": "STILIST",
+    "imageSrc": "./assets/service4.png",
+    "description": "Kaasaegse elutempo juures pole stilisti teenus enam mitte luksus, vaid loomulik vajadus."
+  }
+]

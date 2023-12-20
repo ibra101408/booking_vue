@@ -1,0 +1,176 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "Lõikus kääridega",
+      "price": 25,
+      "category": "men"
+    },
+    {
+      "id": 2,
+      "name": "Masinalõikus",
+      "price": 17,
+      "category": "men"
+    },
+    {
+      "id": 3,
+      "name": "Stiili muutmine",
+      "price": 30,
+      "category": "men"
+    },
+    {
+      "id": 4,
+      "name": "Värvimine/toonimine",
+      "price": 35,
+      "additionalCost": "(+materjal)",
+      "category": "men"
+    },
+    {
+      "id": 5,
+      "name": "Juuste pesemine/soeng",
+      "price": 15,
+      "category": "men"
+    },
+    {
+      "id": 6,
+      "name": "Habeme kujundamine",
+      "price": 10,
+      "category": "men"
+    },
+    {
+      "id": 7,
+      "name": "Kompleksteenusteenus keemiline lokk +lõiku",
+      "price": 35,
+      "additionalCost": "(+materjal)",
+      "category": "men"
+    },
+    {
+      "id": 8,
+      "name": "Kuni 12-aastasele Lõikus",
+      "price": 16,
+      "category": "child"
+    },
+    {
+      "id": 9,
+      "name": "Kuni 12-aastasele Soeng",
+      "price": 20,
+      "category": "child"
+    },
+    {
+      "id": 10,
+      "name": "Lõikus kuumade kääridega",
+      "price": "40-50",
+      "category": "women"
+    },
+    {
+      "id": 11,
+      "name": "Lõikus",
+      "price": "29-35",
+      "category": "women"
+    },
+    {
+      "id": 12,
+      "name": "Stiili muutmine",
+      "price": "35-45",
+      "category": "women"
+    },
+    {
+      "id": 13,
+      "name": "Tuka lõikus",
+      "price": "7.00",
+      "category": "women"
+    },
+    {
+      "id": 14,
+      "name": "Föönisoeng",
+      "price": "25-35",
+      "category": "women"
+    },
+    {
+      "id": 15,
+      "name": "Lokkimine",
+      "price": "25-40",
+      "category": "women"
+    },
+    {
+      "id": 16,
+      "name": "Pruudisoeng",
+      "price": "50",
+      "category": "women"
+    },
+    {
+      "id": 17,
+      "name": "Juuste pesu ja föönitamine",
+      "price": "18",
+      "category": "women"
+    },
+    {
+      "id": 18,
+      "name": "Juurte värvimine",
+      "price": "35",
+      "additionalCost": "(+materjal)",
+      "category": "women"
+    },
+    {
+      "id": 19,
+      "name": "Salgud",
+      "price": "44",
+      "category": "women"
+    },
+    {
+      "id": 20,
+      "name": "Kompleksteenus paksudele juustele: lõikus + värvimine",
+      "price": "48",
+      "category": "women"
+    },
+    {
+      "id": 21,
+      "name": "Kompleksteenus õhukestele juustele: lõikus + värvimine",
+      "price": "44",
+      "category": "women"
+    },
+    {
+      "id": 22,
+      "name": "Intensiivhooldus + massaaž",
+      "price": "35-45",
+      "category": "women"
+    },
+    {
+      "id": 23,
+      "name": "Pea massaaž 10 min",
+      "price": "8",
+      "category": "women"
+    },
+    {
+      "id": 24,
+      "name": "Kompleksteenus keemiline lokk + lõikus",
+      "price": "35-43",
+      "additionalCost": "(+materjal)",
+      "category": "women"
+    },
+    {
+      "id": 25,
+      "name": "Keratiinihooldus 1g",
+      "price": "1",
+      "category": "women"
+    },
+    {
+      "id": 26,
+      "name": "Värv",
+      "price": "0.45/g",
+      "category": "material"
+    },
+    {
+      "id": 27,
+      "name": "Goldwell Elumen",
+      "price": "0.50/g",
+      "category": "material"
+    },
+    {
+      "id": 28,
+      "name": "Milk Shake",
+      "price": "0.50/g",
+      "category": "material"
+    }
+  ]
+}

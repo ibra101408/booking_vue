@@ -1,0 +1,16 @@
+{
+  "translate": [
+    {
+      "id": 1,
+      "name": "Hello",
+      "text": "Hello, world!",
+      "language": "English"
+    },
+    {
+      "id": 2,
+      "name": "bonjur",
+      "text": "Bonjour le monde!",
+      "language": "French"
+    }
+  ]
+}

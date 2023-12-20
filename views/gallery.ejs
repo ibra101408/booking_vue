@@ -1,0 +1,95 @@
+<div class="container gallery_container">
+    <h4 class="transitional transitional_gallery"><%= translations.our%></h4>
+    <h1 class="heading"><%= translations.gallery%></h1>
+    <div class="divider"></div>
+    <p class="text gallery_text">
+        <%= translations.gallery_text%>
+    </p>
+
+
+
+    <div id="gallery">
+        <!-- Replace these image URLs with your actual image URLs -->
+        <div class="gallery-item first_pic" onclick="openModal('./assets/gallery/gallery_image_6.jpg')">
+            <img src="./assets/gallery/gallery_image_6.jpg" alt="Image 1">
+        </div>
+        <div class="gallery-item second_pic" onclick="openModal('./assets/gallery/gallery_image_3.jpg')">
+            <img src="./assets/gallery/gallery_image_3.jpg" alt="Image 2">
+        </div>
+        <div class="gallery-item third_pic" onclick="openModal('./assets/gallery/gallery_image_5.jpg')">
+            <img src="./assets/gallery/gallery_image_5.jpg" alt="Image 3">
+        </div>
+        <div class="gallery-item fourth_pic" onclick="openModal('./assets/gallery/gallery_image_1.jpg')">
+            <img src="./assets/gallery/gallery_image_1.jpg" alt="Image 4">
+        </div>
+        <div class="gallery-item fifth_pic" onclick="openModal('./assets/gallery/gallery_image_4.jpg')">
+            <img src="./assets/gallery/gallery_image_4.jpg" alt="Image 5">
+        </div>
+        <div class="gallery-item sixth_pic" onclick="openModal('./assets/gallery/gallery_image_2.jpg')">
+            <img src="./assets/gallery/gallery_image_2.jpg" alt="Image 6">
+        </div>
+    </div>
+
+    <div id="modal" onclick="closeModal()" tabindex="0">
+        <button id="prev" onclick="prevImage()">&lt;</button>
+        <div id="close-modal" onclick="closeModal()">&times;</div>
+        <img id="modal-image" src="" alt="Modal Image">
+        <button id="next" onclick="nextImage()">&gt;</button>
+    </div>
+
+    <script>
+        const imageUrls = [
+            './assets/gallery/gallery_image_1.jpg',
+            './assets/gallery/gallery_image_2.jpg',
+            './assets/gallery/gallery_image_3.jpg',
+            './assets/gallery/gallery_image_4.jpg',
+            './assets/gallery/gallery_image_5.jpg',
+            './assets/gallery/gallery_image_6.jpg',
+        ];
+
+
+        let currentImageIndex = 0;
+
+        function openModal(imageUrl) {
+            currentImageIndex = imageUrls.indexOf(imageUrl);
+            updateModalImage();
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        //add event listener to close modal on click outside of modal
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('modal')) {
+                closeModal();
+            }
+        });
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+            updateModalImage();
+        }
+
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+            updateModalImage();
+        }
+
+        function updateModalImage() {
+            document.getElementById('modal-image').src = imageUrls[currentImageIndex];
+        }
+        // Add keyboard arrow key event listeners
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                prevImage();
+            } else if (event.key === 'ArrowRight') {
+                nextImage();
+            } else if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+    </script>
+</div>

@@ -1,0 +1,46 @@
+<%- include ('./partials/head.ejs') %>
+
+<div class="header">
+    <div class="menu-toggle" id="menuToggle">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </div>
+    <div class="headerContainer">
+
+        <a href="#" class="font"><%= translations.services%></a>
+        <a href="#" class="font"><%= translations.pricing%></a>
+        <a href="#" class="font"><%= translations.gallery%></a>
+        <!-- Replace the logo path and width with your actual logo path and width -->
+        <img src="./assets/logo.png" alt="Logo" class="logo"/>
+        <a href="#" class="font"><%= translations.time%></a>
+        <a href="#" class="font"><%= translations.booking%></a>
+        <a href="#" class="font"><%= translations.contact%></a>
+        <a href="/?lang=et"><img  src="./assets/et.png" alt="et"/></a>
+        <a href="/?lang=ru"><img src="./assets/ru.png" alt="ru"/></a>
+    </div>
+
+    <img src="./assets/logo.png" alt="Logo" class="logo_mobile"/>
+    <div class="mobile-menu" id="mobileMenu">
+        <!-- Your menu items go here -->
+        <a href="#" class="font"><%= translations.services%></a>
+        <a href="#" class="font"><%= translations.pricing%></a>
+        <a href="#" class="font"><%= translations.gallery%></a>
+        <a href="#" class="font"><%= translations.time%></a>
+        <a href="#" class="font"><%= translations.booking%></a>
+        <a href="#" class="font"><%= translations.contact%></a>
+        <div class="languages">
+            <a href="/?lang=et"><img  src="./assets/et.png" alt="et"/></a>
+            <a href="/?lang=ru"><img src="./assets/ru.png" alt="ru"/></a>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#menuToggle").click(function () {
+            console.log("clicked");
+            $("#mobileMenu").toggleClass("active",  300); // 300 milliseconds transition
+        });
+    });
+</script>

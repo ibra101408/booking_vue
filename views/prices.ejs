@@ -1,0 +1,86 @@
+<!--<div class="  upper_container">-->
+<div class="container prices_container">
+    <h4 class="transitional transitional_prices"><%= translations.our %></h4>
+    <h1 class="heading"><%= translations.prices%></h1>
+    <div class="divider"></div>
+    <p class="text price_text">
+        <%= translations.creativity_text%>
+    </p>
+
+    <div class="price_list">
+        <div class="price_grid_container men-child">
+            <div class="price_card_container">
+                <h1 class="price_card_name"><%= translations.men%></h1>
+                <div class="price_card men">
+                    <ul>
+                        <% translations.servicesPrice
+                                .filter(service => service.category === "men")
+                        .forEach(service => { %>
+                            <li>
+                                <span class="service_name"><%= service.name %></span>
+                                <span class="price <%= service.additionalCost ? 'with-additional-cost' : '' %>">
+                            <%= service.price %>€ <%= service.additionalCost || '' %>
+                        </span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+            <div class="price_card_container">
+                <h1 class="price_card_name"><%= translations.child%></h1>
+                <div class="price_card child">
+                    <ul>
+                        <% translations.servicesPrice
+                                .filter(service => service.category === "child")
+                        .forEach(service => { %>
+                            <li>
+                                <span class="service_name"><%= service.name %></span>
+                                <span class="price <%= service.additionalCost ? 'with-additional-cost' : '' %>">
+                                    <%= service.price %>€ <%= service.additionalCost || '' %></span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="price_grid_container women">
+            <div class="price_card_container">
+                <h1 class="price_card_name"><%= translations.women%></h1>
+
+                <div class="price_card women">
+                    <ul>
+                        <% translations.servicesPrice
+                                .filter(service => service.category === "women")
+                        .forEach(service => { %>
+                            <li>
+                                <span class="service_name"><%= service.name %></span>
+                                <span class="price <%= service.additionalCost ? 'with-additional-cost' : '' %>">
+                            <%= service.price %>€ <%= service.additionalCost || '' %>
+                        </span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="price_grid_container material">
+            <div class="price_card_container">
+                <h1 class="price_card_name"><%= translations.material%></h1>
+                <div class="price_card material">
+                    <ul>
+                        <% translations.servicesPrice
+                                .filter(service => service.category === "material")
+                        .forEach(service => { %>
+                            <li>
+                                <span class="service_name"><%= service.name %></span>
+                                <span class="price"><%= service.price %>€ <%= service.additionalCost || '' %></span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

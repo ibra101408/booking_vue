@@ -1,0 +1,616 @@
+<div class="booking_container">
+    <div class="first_part">
+        <label for="categorySelect">Select a category:</label>
+        <select id="categorySelect">
+            <option value="" disabled selected>Select category</option>
+        </select>
+
+        <div id="serviceCheckboxes"></div>
+
+        <p id="selected-services"></p>
+        <p id="duration"></p>
+
+        <button id="submitButton" type="button">Submit</button>
+    </div>
+
+    <!-- Time slots-->
+    <div class="second_part" style="display: none">
+        <p id="workerList"></p>
+
+        <label for="workerSelect">Select Worker:</label>
+        <!-- <select id="workerSelect" onchange="fetchAvailableSlots()">-->
+        <select id="workerSelect" onchange="fetchSlots()">
+            <option>worker1</option>
+            <option>worker2</option>
+        </select>
+        <br>
+
+        <table id="available-slots-table">
+            <label for="selected-date">Select Date:</label>
+            <input type="date" id="selected-date">
+            <thead>
+            <tr>
+                <th scope="col">Start Time</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <!--Client-->
+    <div class="last_part" style="display: none">
+        <h2>Client Information Form</h2>
+
+        <form id="clientForm">
+            <!-- Client Name -->
+            <label for="clientName">Name:</label>
+            <input type="text" id="clientName" name="clientName" required>
+
+            <br>
+            <!-- Telephone Number -->
+            <label for="clientTel">Telephone Number:</label>
+            <input type="tel" id="clientTel" name="clientTel">
+
+            <br>
+            <!-- Email Address -->
+            <label for="clientEmail">Email:</label>
+            <input type="email" id="clientEmail" name="clientEmail">
+
+            <br>
+            <!-- Submit Button ! onclick="scheduleEvent(start, fullEnd, selectedWorker)-->
+            <button id="send_user_data" type="submit">Send User
+                Data
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+
+<script>
+    let existingEvents = []; // Variable to store existing events
+    let nextStart;
+    let fullEnd;
+    let start;
+    let selectedWorker;
+
+
+    document.getElementById("send_user_data").addEventListener("click", async function () {
+        const clientName = $('#clientName').val();
+        const clientTel = $('#clientTel').val();
+
+        const clientId = await sendClientData(clientName, clientTel);
+        console.log("client_Id?!", clientId)
+
+        const appointmentsId = await sendAppointmentsData(clientId);
+        console.log("appointmentsid in func - ", appointmentsId);
+
+        // Pass clientId to scheduleEvent
+        await scheduleEvent(start, fullEnd, clientName, clientTel, clientId);
+    });
+
+    async function scheduleEvent(start, end, clientName, clientTel, clientId) {
+
+        try {
+            // const clientId = await sendClientData();
+            console.log("booking point")
+
+            const scheduleResponse = await fetch('/google/schedule_event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    start,
+                    end,
+                    clientName,
+                    clientTel,
+                    selectedServicesName,
+                    selectedWorker,
+                    //appointmentsId,
+                }),
+            });
+            console.log("booking point n2")
+
+            if (scheduleResponse.ok) {
+                const result = await scheduleResponse.json();
+                console.log('Event scheduled successfully:', result);
+            } else {
+                throw new Error(`Error scheduling event: ${scheduleResponse.status} ${scheduleResponse.statusText}`);
+            }
+
+        } catch (error) {
+            console.error('Error scheduling event:', error);
+        }
+    }
+
+    async function sendClientData(clientName, clientTel) {
+        let clientId; // Declare clientId with let to ensure local scope
+
+        //  console.log("are u here?", clientName, clientTel);
+
+        try {
+            const clientResponse = await fetch('/client', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    clientName,
+                    clientTel,
+                }),
+            });
+
+            clientId = await clientResponse.json();
+            console.log('Client ID:', clientId);
+
+            console.log(clientResponse.status); // check 200
+            console.log(clientResponse.ok); // check true
+
+            if (!clientResponse.ok) {
+                throw new Error(`Error inserting client data: ${clientResponse.status} ${clientResponse.statusText}`);
+            } else {
+                console.log("clientResponse!", clientResponse);
+            }
+
+            // Retrieve Client ID
+            //
+        } catch (err) {
+            console.error('Error sending client data:', err);
+            throw err; // Propagate the error to the calling function
+        }
+
+        return clientId; // Return clientId
+    }
+
+    async function sendAppointmentsData(clientId) {
+        let appointmentsId;
+        console.log("in front appointments?", clientId);
+
+        try {
+            const appointmentsResponse = await fetch('/appointments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    clientId
+                }),
+            });
+            console.log("a. ", appointmentsResponse.status); // check 200
+            console.log("a. ", appointmentsResponse.ok); // check true
+            console.log("appointmentsResponse", appointmentsResponse);
+
+            if (!appointmentsResponse.ok) {
+                throw new Error(`Error inserting client data: ${appointmentsResponse.status} ${appointmentsResponse.statusText}`);
+            } else {
+                console.log("clientResponse!", appointmentsResponse);
+            }
+
+            // Retrieve Client ID
+            appointmentsId = await appointmentsResponse.json();
+            console.log('appointments ID:', appointmentsId);
+        } catch (err) {
+            console.error('Error sending appointments data:', err);
+            throw err; // Propagate the error to the calling function
+        }
+
+        return appointmentsId; // Return clientId
+    }
+
+    const tableBody = $('#available-slots-table tbody');
+
+    const fetchSlots = async (selectedDate) => {
+        selectedWorker = document.getElementById('workerSelect').value;
+        selectedDate = selectedDate || luxon.DateTime.local().toISODate();
+
+        try {
+            const response = await fetch(`/google/get_slots?worker=${selectedWorker}&date=${selectedDate}`);
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status} ${response.statusText}`);
+            }
+            // const availableSlots = await response.json();
+            const slots = await response.json();
+
+            tableBody.empty() // Clear existing rows
+
+            slots.forEach(slot => {
+
+                const startTime = luxon.DateTime.fromISO(slot.start);
+                const endTime = luxon.DateTime.fromISO(slot.end);
+
+                if (startTime.hour < 9 || startTime.hour > 20) {
+                    return;
+                }
+
+                // Render slots from 9AM onwards
+                const startTimeFormatted = startTime.toFormat('HH:mm');
+
+                const isAvailable = slot.isAvailable; //added
+
+                // Add a class to distinguish available and unavailable slots
+                const slotClass = isAvailable ? '' : 'no-availability';//added
+
+                tableBody.append(`
+                        <tr data-start="${slot.start}" data-end="${slot.end}" class="${slotClass}">
+                            <td>${startTimeFormatted}</td>
+                        </tr>
+                    `);
+            });
+
+        } catch (error) {
+            console.error('Error fetching available slots:', error);
+        }
+    };
+    // Handle date selection
+    $('#selected-date').on('change', function () {
+        const selectedDate = $(this).val();
+        fetchSlots(selectedDate);
+    });
+
+    /*  trying new  */
+
+
+    // Handle mouse hover on the table rows
+    tableBody.on('mouseenter', 'tr', function () {
+        const selectedRow = tableBody.find('tr').index(this);
+        const duration = calculateSlotsNeeded(); // Adjust this based on your slot duration (4 slots for 60 minutes)
+        const startRow = selectedRow; // Adjust for one-based index
+
+        const isAvailable = !$(this).hasClass('no-availability');
+
+        // Highlight slots based on duration and availability
+        highlightSlots(startRow, duration, isAvailable);
+    }).on('mouseleave', 'tr', function () {
+        // Remove highlight when the mouse leaves the table rows
+        tableBody.find('tr').removeClass('highlighted-row');
+    });
+
+    const highlightSlots = (startRow, duration, isAvailable) => {
+        //let isAvailable = true;
+
+        for (let i = 0; i < duration; i++) {
+            const currentRow = startRow + i;
+            const rowSelector = `tr:eq(${currentRow})`;
+
+
+            /*   if (!rowSelector.hasClass('no-availability')) {
+         /*        rowSelector.addClass('highlighted-row');
+            } else {
+                isAvailable = false;
+                break;
+       }     */
+            if (isAvailable) {
+                // Add a class to highlight available slots
+                tableBody.find(rowSelector).addClass('highlighted-row');
+            } else {
+                // Remove highlight class for unavailable slots
+                tableBody.find(rowSelector).removeClass('highlighted-row');
+            }
+        }
+    };
+
+    /*  trying new  */
+
+    // Attach event listener to the table body for mouseover events
+
+    /*   /////////////almost working
+    tableBody.on('mouseover', 'tr', function () {
+        // Re-query the DOM to get the updated set of rows
+        const tableRows = tableBody.find("tr");
+        const highlightedRows = [];
+
+        const index = tableRows.index(this);
+        const start = $(this).find("td:first-child").text();
+        let numSlotsNeeded = calculateSlotsNeeded(start)
+
+        console.log("numSlotsNeeded: ", numSlotsNeeded)
+        let consecutiveSlots = 0;
+        let slotsAvailable = true;
+        // tableRows.removeClass("highlighted-row");
+        let currentRow;
+
+        for (let i = 0; i < numSlotsNeeded; i++) {
+            currentRow = tableRows.eq(index + i);
+            const nextRow = tableRows.eq(index + i + 1);
+            console.log("current : ", currentRow.data('start'))
+
+
+            if (consecutiveSlots === numSlotsNeeded - 1) {
+                console.log("cc", consecutiveSlots)
+                console.log("slotavailavle1 ", slotsAvailable)
+                break;
+            }
+
+            if(!slotsAreConsecutive(currentRow, nextRow)) {
+                slotsAvailable = false;
+                break;
+            }
+
+            if (nextRow.length === 0) {
+                // If nextRow is undefined, we are at the last row
+                console.log("Last slot");
+                slotsAvailable = false;
+                break; // Exit the loop if we have already found numSlotsNeeded
+            }
+            if (nextRow.hasClass('no-availability')) {
+                // If nextRow is undefined or available, we are at the last available slot
+                console.log("Last available slot");
+                slotsAvailable = false;
+                break; // Exit the loop if we have already found numSlotsNeeded
+            }
+            }
+
+        function slotsAreConsecutive(currentRow, nextRow) {
+            const currentEnd = currentRow.data('end');
+            const nextStart = nextRow.data('start');
+
+            if (currentEnd !== nextStart) {
+                console.log("Slots are not consecutive!");
+               // slotsAvailable = false;
+                console.log("a or N", slotsAvailable);
+                console.log("slotavailavle5 ", slotsAvailable);
+                return false;
+            } else {
+                console.log("slotavailavle6 ", slotsAvailable);
+                return true;
+            }
+        }
+
+// Clear previous highlights
+        tableRows.removeClass("highlighted-row");
+
+        /*if (!slotsAvailable) {
+            console.log()
+            highlightedRows.forEach(row => {
+                console.log("HR", highlightedRows)
+                row.removeClass("highlighted-row");
+            });
+        } else {*/
+    /*  if (!slotsAvailable) {
+          console.log("slotavailavle!!!!!!!!!! ", slotsAvailable)
+          return;
+      }
+          // Highlight rows starting from the current one, ensuring it stays within bounds
+          for (let i = 0; i < numSlotsNeeded && index + i < tableRows.length; i++) {
+              tableRows.eq(index + i).addClass("highlighted-row");
+              highlightedRows.push(currentRow);
+              console.log("a or n", slotsAvailable)
+          }
+    //  }
+  });*/
+
+    /*
+     if (slotsAreConsecutive(currentRow.data('end'), nextRow.data('start'))) {
+         console.log("++????", consecutiveSlots)
+         consecutiveSlots++;
+         console.log("slotavailavle3 ", slotsAvailable)
+
+     } else {
+         console.log("break")
+         console.log("slotavailavle4 ", slotsAvailable)
+
+         break;
+     }*/
+    /*if (!slotsAreConsecutive(currentRow.data('end'), nextRow.data('start'))) {
+        console.log("Slots are not consecutive!");
+        slotsAvailable = false;
+        console.log("a or N", slotsAvailable);
+        break; // Exit the loop if consecutive condition is not met
+    }
+
+}
+*/
+
+
+    function calculateSlotsNeeded() {
+        return parseInt(totalDuration) / 15;
+    }
+
+    // Initial fetch for the current date
+    const currentDate = luxon.DateTime.local().toISODate();
+    //fetchAvailableSlots(currentDate);
+    fetchSlots(currentDate);
+    // Handle click event on table rows
+    tableBody.on('click', 'tr', function () {
+        start = $(this).data('start');
+        // const end = $(this).data('end');
+
+        // Specify the duration in minutes
+        const duration = totalDuration;
+        // Calculate the number of slots needed based on the duration
+        const slotsNeeded = duration / 15;
+        let currentStart = start;
+
+        // Automatically book the next slots, if needed
+        for (let i = 1; i <= slotsNeeded; i++) {
+
+            nextStart = luxon.DateTime
+                .fromISO(currentStart)
+                .toUTC()
+                .toISO();
+
+            const nextEnd = luxon.DateTime
+                .fromISO(nextStart)
+                .plus({minutes: (i + 1) * 15})
+                .toUTC()
+                .toISO();
+
+            // Check if the next slot directly follows the current slot
+            const isNextSlotValid = existingEvents.every(event => {
+                const eventStart = luxon.DateTime.fromISO(event.start.dateTime).toUTC().toISO();
+                const eventEnd = luxon.DateTime.fromISO(event.end.dateTime).toUTC().toISO();
+
+                return nextStart >= eventEnd || nextEnd <= eventStart;
+            });
+
+            fullEnd = luxon.DateTime.fromISO(start).plus({minutes: duration}).toUTC().toISO();
+
+            // Check if the next slot directly follows the current slot
+            const isFullSlotValid = existingEvents.every(event => {
+                const eventStart = luxon.DateTime.fromISO(event.start.dateTime).toUTC().toISO();
+                const eventEnd = luxon.DateTime.fromISO(event.end.dateTime).toUTC().toISO();
+                return start >= eventEnd || fullEnd <= eventStart;
+            });
+
+            // Check if the next slot exists
+            if (isNextSlotValid && isFullSlotValid) {
+
+                currentStart = nextEnd;
+
+            } else {
+                console.error('Error: Next slot does not exist');
+            }
+        }
+
+        //  scheduleEvent(start, fullEnd);
+        $('.second_part').hide();
+        $('.last_part').show();
+
+    });
+
+
+</script>
+<script>
+    const selectedList = document.getElementById('selected-services');
+    let totalDuration = 0;
+
+    async function getCategories() {
+        try {
+
+            const response = await axios.get('/category');
+            const categories = response.data;
+
+            const categorySelect = document.getElementById('categorySelect');
+            categories.forEach((category) => {
+                const option = document.createElement('option');
+                option.value = category.category_id; // Assuming your category object has an "id" property
+                option.text = category.name; // Assuming your category object has a "name" property
+                categorySelect.appendChild(option);
+            });
+
+            // Add an event listener to log the selected category
+            categorySelect.addEventListener('change', async (event) => {
+                const selectedCategoryId = event.target.value;
+                const selectedCategoryName = categorySelect.options[categorySelect.selectedIndex].text;
+
+                try {
+                    const backendResponse = await axios.post('/category', {
+                        id: selectedCategoryId,
+                        name: selectedCategoryName,
+                    });
+
+                    // Fetch all services initially
+                    const allServicesResponse = await axios.get('/service/${categoryId}');
+                    const allServices = allServicesResponse.data;
+                    // Fetch and populate services based on the selected category
+                    await getService(selectedCategoryId, allServices, selectedServices);
+
+                } catch (error) {
+                    console.error('Error sending data to the backend:', error);
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }
+
+    getCategories();
+    let selectedServices = [];
+    let selectedServicesName = [];
+
+    async function getService(categoryId) {
+        try {
+            const url = `/service/${categoryId}`;
+            const response = await axios.get(url);
+            const services = response.data;
+            const serviceCheckboxes = document.getElementById('serviceCheckboxes');
+
+            serviceCheckboxes.innerHTML = '';
+            selectedList.innerHTML = '';
+
+            services.forEach((service) => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.name = 'services';
+                checkbox.value = service.service_id;
+                checkbox.id = `service_${service.service_id}`;
+                checkbox.className = 'service_checkbox';
+
+                checkbox.addEventListener('click', () => {
+                    if (checkbox.checked) {
+                        selectedServices.push(service.service_id);
+                        selectedServicesName.push(service.name);
+                        totalDuration += service.duration_minutes;
+
+                    } else {
+                        const index = selectedServices.indexOf(service.service_id);
+                        if (index > -1) {
+                            selectedServices.splice(index, 1);
+                            totalDuration -= service.duration_minutes;
+                        }
+                    }
+                });
+
+                selectedList.innerHTML = '';
+
+                selectedServices.forEach(id => {
+                    const label = document.createElement('div');
+                    label.textContent = `Service ${id}`;
+                    selectedList.appendChild(label);
+                });
+
+
+                checkbox.checked = selectedServices.includes(service.service_id);
+
+                /*console.log("wasChecked - ", wasChecked);
+                checkbox.checked = wasChecked;*/
+
+                const label = document.createElement('label');
+                label.htmlFor = `service_${service.service_id}`;
+                label.appendChild(document.createTextNode(service.name));
+
+                serviceCheckboxes.appendChild(checkbox);
+                serviceCheckboxes.appendChild(label);
+                serviceCheckboxes.appendChild(document.createElement('br'));
+            });
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
+    }
+
+    const submitButton = document.getElementById('submitButton');
+    submitButton.addEventListener('click', async () => {
+        try {
+            // Make a backend request to fetch workers based on selected services
+            const response = await axios.post('/worker', {selectedServices});
+            const workers = response.data;
+            $('#duration').text(totalDuration);
+
+            // Update your UI to display the fetched workers or show a message if none are found
+            const workerList = document.getElementById('workerList');
+
+
+            if (workers.length > 0) {
+                workerList.innerHTML = workers.map(worker => `<div>${worker.name}</div>`).join('');
+            } else {
+                workerList.innerHTML = '<div>Sorry, no workers found for the selected services</div>';
+            }
+        } catch (error) {
+            console.error('Error fetching workers:', error);
+        }
+    });
+
+
+</script>
+<!--NAVIGATION-->
+<script>
+    $(document).ready(function () {
+        // Event listener for the submit button
+        $('#submitButton').click(function () {
+            // Hide the first part of the form
+            //$('.first_part').hide();
+            $('.second_part').show();
+        });
+    });
+</script>
