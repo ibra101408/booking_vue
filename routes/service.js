@@ -1,15 +1,10 @@
 const express = require('express');
-const path = require("path");
 const router = express.Router();
-const fs = require('fs');
-const db = require('../doc/database');
+const db = require('../modules/database');
 
 router.get('/', async (req, res) => {
 
-
-    const sql = 'SELECT * FROM service';
-
-    db.query(sql, (err, rows) => {
+    db.query('SELECT * FROM service', (err, rows) => {
         if(err){
             console.log(err.message);
             return res.status(500).json({error: "Failed"})

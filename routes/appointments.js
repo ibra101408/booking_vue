@@ -1,7 +1,6 @@
 const express = require('express');
-const path = require("path");
 const router = express.Router();
-const db = require('../doc/database');
+const db = require('../modules/database');
 
 
 router.post('/', async (req, res) => {
@@ -17,8 +16,7 @@ router.post('/', async (req, res) => {
         db.query(sql, [clientId], (err, result) => {
             if (err) {
                 console.log(err.message);
-                res.status(500).json({error: "Failed"});
-                return;
+                return res.status(500).json({error: "Failed"});
             } else {
 
                 const appointmentsId = result.insertId;

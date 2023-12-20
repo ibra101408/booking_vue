@@ -25,9 +25,10 @@
         </select>
         <br>
 
+        <label for="selected-date">Select Date:</label>
+        <input type="date" id="selected-date">
+
         <table id="available-slots-table">
-            <label for="selected-date">Select Date:</label>
-            <input type="date" id="selected-date">
             <thead>
             <tr>
                 <th scope="col">Start Time</th>
@@ -64,10 +65,10 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
 
 <script>
+
     let existingEvents = []; // Variable to store existing events
     let nextStart;
     let fullEnd;
@@ -86,14 +87,15 @@
         console.log("appointmentsid in func - ", appointmentsId);
 
         // Pass clientId to scheduleEvent
-        await scheduleEvent(start, fullEnd, clientName, clientTel, clientId);
+        await scheduleEvent(start, fullEnd, clientName, clientTel);
     });
 
-    async function scheduleEvent(start, end, clientName, clientTel, clientId) {
+    async function scheduleEvent(start, end, clientName, clientTel) {
 
         try {
             // const clientId = await sendClientData();
             console.log("booking point")
+
 
             const scheduleResponse = await fetch('/google/schedule_event', {
                 method: 'POST',
@@ -116,7 +118,7 @@
                 const result = await scheduleResponse.json();
                 console.log('Event scheduled successfully:', result);
             } else {
-                throw new Error(`Error scheduling event: ${scheduleResponse.status} ${scheduleResponse.statusText}`);
+                throw new Error(`${scheduleResponse.status} ${scheduleResponse.statusText}`);
             }
 
         } catch (error) {
@@ -130,7 +132,7 @@
         //  console.log("are u here?", clientName, clientTel);
 
         try {
-            const clientResponse = await fetch('/client', {
+            const clientResponse = await fetch('/clients', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -217,7 +219,6 @@
             slots.forEach(slot => {
 
                 const startTime = luxon.DateTime.fromISO(slot.start);
-                const endTime = luxon.DateTime.fromISO(slot.end);
 
                 if (startTime.hour < 9 || startTime.hour > 20) {
                     return;
@@ -492,19 +493,14 @@
             // Add an event listener to log the selected category
             categorySelect.addEventListener('change', async (event) => {
                 const selectedCategoryId = event.target.value;
-                const selectedCategoryName = categorySelect.options[categorySelect.selectedIndex].text;
 
                 try {
-                    const backendResponse = await axios.post('/category', {
-                        id: selectedCategoryId,
-                        name: selectedCategoryName,
-                    });
 
                     // Fetch all services initially
-                    const allServicesResponse = await axios.get('/service/${categoryId}');
-                    const allServices = allServicesResponse.data;
+                    const allServices = (await axios.get('/service/${categoryId}')).data;
+
                     // Fetch and populate services based on the selected category
-                    await getService(selectedCategoryId, allServices, selectedServices);
+                    await loadAndDisplayServices(selectedCategoryId, allServices, selectedServices);
 
                 } catch (error) {
                     console.error('Error sending data to the backend:', error);
@@ -519,64 +515,63 @@
     let selectedServices = [];
     let selectedServicesName = [];
 
-    async function getService(categoryId) {
+    // Function to load and display services based on a category ID
+    async function loadAndDisplayServices(categoryId) {
         try {
-            const url = `/service/${categoryId}`;
-            const response = await axios.get(url);
-            const services = response.data;
-            const serviceCheckboxes = document.getElementById('serviceCheckboxes');
-
-            serviceCheckboxes.innerHTML = '';
+            const services = (await axios.get(`/service/${categoryId}`)).data;
+            const container = document.getElementById('serviceCheckboxes');
+            container.innerHTML = '';
             selectedList.innerHTML = '';
 
-            services.forEach((service) => {
+            // Loop through each service and append checkbox and label
+            services.forEach(service => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.name = 'services';
                 checkbox.value = service.service_id;
                 checkbox.id = `service_${service.service_id}`;
                 checkbox.className = 'service_checkbox';
-
-                checkbox.addEventListener('click', () => {
-                    if (checkbox.checked) {
-                        selectedServices.push(service.service_id);
-                        selectedServicesName.push(service.name);
-                        totalDuration += service.duration_minutes;
-
-                    } else {
-                        const index = selectedServices.indexOf(service.service_id);
-                        if (index > -1) {
-                            selectedServices.splice(index, 1);
-                            totalDuration -= service.duration_minutes;
-                        }
-                    }
-                });
-
-                selectedList.innerHTML = '';
-
-                selectedServices.forEach(id => {
-                    const label = document.createElement('div');
-                    label.textContent = `Service ${id}`;
-                    selectedList.appendChild(label);
-                });
-
-
                 checkbox.checked = selectedServices.includes(service.service_id);
-
-                /*console.log("wasChecked - ", wasChecked);
-                checkbox.checked = wasChecked;*/
+                checkbox.addEventListener('click', () => toggleServiceSelection(service, checkbox.checked));
 
                 const label = document.createElement('label');
-                label.htmlFor = `service_${service.service_id}`;
-                label.appendChild(document.createTextNode(service.name));
+                label.htmlFor = checkbox.id;
+                label.textContent = service.name;
 
-                serviceCheckboxes.appendChild(checkbox);
-                serviceCheckboxes.appendChild(label);
-                serviceCheckboxes.appendChild(document.createElement('br'));
+                container.appendChild(checkbox);
+                container.appendChild(label);
+                container.appendChild(document.createElement('br'));
             });
         } catch (error) {
             console.error('Error fetching services:', error);
         }
+    }
+
+    // Toggle service selection and update total duration
+    function toggleServiceSelection(service, isSelected) {
+        const index = selectedServices.indexOf(service.service_id);
+        if (isSelected) {
+            if (index === -1) {
+                selectedServices.push(service.service_id);
+                totalDuration += service.duration_minutes;
+            }
+        } else {
+            if (index > -1) {
+                selectedServices.splice(index, 1);
+                totalDuration -= service.duration_minutes;
+            }
+        }
+        updateSelectedServicesList();
+    }
+
+    // Update the list of selected services
+    function updateSelectedServicesList() {
+        selectedList.innerHTML = '';
+        selectedServices.forEach(serviceId => {
+            const label = document.createElement('div');
+            label.textContent = `Service ${serviceId}`;
+            selectedList.appendChild(label);
+        });
     }
 
     const submitButton = document.getElementById('submitButton');
@@ -603,7 +598,6 @@
 
 
 </script>
-<!--NAVIGATION-->
 <script>
     $(document).ready(function () {
         // Event listener for the submit button
