@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Poppins:wght@400;500&display=swap');
 
 * {
 
@@ -6,22 +6,45 @@
     padding: 0;
     box-sizing: border-box;
 }
-:root{
-    --text_color: #494949;
+
+:root {
+    --heading_color: #494949;
     --primary_color: #ceb19c;
     --primary_button_color: #b84e4e;
     --hover_button_color: #cf5d5d;
     --white_color: #ffffff;
-
+    --text_color: #6e6e6e;
 
 }
 
 body {
     font-family: 'Poppins', sans-serif !important;
-    color: var(--text_color);
+    color: var(--heading_color);
 }
-h4 .transitional_worker{
-    color: var(--text_color) !important;
+
+h4 {
+    color: var(--heading_color) !important;
+}
+
+.transitional {
+    color: var(--primary_color) !important;
+    z-index: 2;
+    margin-bottom: 2%;
+    font-family: "Cormorant Garamond", serif;
+}
+
+.text {
+    color: var(--text_color);
+    font-family: "Cormorant Garamond", serif;
+    font-size: 20px;
+    width: 33rem;
+    text-align: center;
+}
+
+@media screen and (max-width: 700px) {
+    .text {
+        width: 90%;
+    }
 }
 
 /* Make the nav bar in top center */
@@ -87,9 +110,10 @@ h4 .transitional_worker{
         margin-left: 5px !important; /* Adjust the value according to your design preference */
     }
 
-    .welcome_text_button {
-        left: 32% !important;
+    .navbar-nav {
+        gap: 0;
     }
+
 }
 
 
@@ -122,20 +146,64 @@ h4 .transitional_worker{
 
 @media (max-width: 1300px) {
     .welcome_text_button {
-        left: 35%;
+        left: 30%;
     }
 }
 
 @media (max-width: 990px) {
-    .welcome_text_button {
-        top: 23%;
-    }
+    /* .welcome_text_button {
+         top: 23%;
+     }*/
 }
 
 @media (max-width: 680px) {
     .welcome_text_button {
-        left: 28% !important;
+        left: 26% !important;
+        top: 17%;
+
     }
+
+    .booking_link {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 500px) {
+    .welcome_text_button {
+        left: 18% !important;
+        top: 11%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .slogan {
+        font-size: 24px;
+        max-width: 90%;
+
+    }
+
+    .booking_link {
+        font-size: 10px;
+        padding: 8px 15px;
+    }
+}
+
+@media (max-width: 350px) {
+    .welcome_text_button {
+        left: 15% !important;
+        top: 10%;
+
+    }
+
+    .slogan {
+        font-size: 22px;
+    }
+
+    /*.booking_link{
+        font-size: 10px;
+        padding: 8px 15px;
+    }*/
 }
 
 .booking_link {
@@ -211,11 +279,7 @@ h4 .transitional_worker{
     margin-top: 10%;
 }
 
-.transitional {
-    z-index: 2;
-    margin-bottom: 3%;
-}
-.transitional_worker{
+.transitional_worker {
     margin-bottom: 0;
 
 }
@@ -253,7 +317,7 @@ h4 .transitional_worker{
     margin-top: 0;
     font-family: 'Cormorant Garamond', serif;
     font-weight: 500;
-    color: var(--text_color);
+    color: var(--heading_color);
     font-size: 72px;
     z-index: 1;
     margin-bottom: 0;
@@ -264,7 +328,7 @@ h4 .transitional_worker{
 .worker-name {
     font-size: 38px;
     font-weight: normal;
-    color: var(--text_color); /* replace with your color variable */
+    color: var(--heading_color); /* replace with your color variable */
     font-family: "Cormorant Garamond", serif;
     z-index: 1;
     margin-top: 30px;
@@ -290,3 +354,167 @@ h4 .transitional_worker{
     color: var(--white_color);
     text-align: center;
 }
+
+/*services*/
+
+.service_container {
+    background: var(--white_color);
+    background-repeat: no-repeat;
+    /*background-position-y: 130px;*/
+    color: black;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    padding-bottom: 7%;
+    background-image: url("assets/bg/service_bg.png");
+
+}
+
+.transitional_services {
+    margin-top: 40px;
+}
+
+.service_grid_container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    column-gap: 200px;
+    margin-bottom: 6%;
+}
+
+.services_box {
+    text-align: center;
+}
+
+.service_text {
+    width: 425px;
+    margin: 0 auto 0 auto;
+}
+
+.service_name {
+    color: var(--heading_color);
+    font-weight: 500;
+    font-size: 20px;
+    /*margin: 0 auto 3% 0;*/
+    margin: 9% 0;
+}
+
+.image {
+    margin-top: 25%;
+}
+
+/*media screen services*/
+@media screen and (max-width: 1150px) {
+    .service_grid_container {
+        column-gap: 100px;
+    }
+
+    .service_text {
+        width: 70%;
+
+    }
+}
+
+@media screen and (max-width: 990px) {
+    .service_grid_container {
+        column-gap: 70px;
+    }
+
+}
+
+@media screen and (max-width: 700px) {
+    .service_grid_container {
+        grid-template-columns: repeat(1, 2fr);
+    }
+
+
+    .service_name {
+        margin: 5% 0;
+
+    }
+
+    .image {
+        margin-top: 5%;
+        width: 35px;
+    }
+
+}
+
+@media screen and (max-width: 330px) {
+    .service_container {
+        background-position-y: 200px;
+    }
+}
+
+
+/*** -Own style- ***/
+.ownStyle_container {
+    background-position-y: 130px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    padding-bottom: 7%;
+}
+
+.transitional_ownStyle {
+    margin-top: 40px;
+}
+
+.text_ownStyle {
+    margin-bottom: 7%;
+}
+
+.glide_container {
+    width: 80%;
+    display: flex;
+}
+
+.glide {
+    max-width: 300px; /* Set the maximum width of the container */
+    margin: 0 auto; /* Center the container on the page */
+}
+
+.glide__track {
+    height: 400px;
+}
+
+.glide__slides img {
+    width: 100%; /* Make sure the image takes the full width of the container */
+    height: 100%; /* Make sure the image takes the full height of the container */
+    object-fit: cover; /* Ensure the entire image is visible without distortion */
+}
+
+/*media screen ownStyle*/
+@media screen and (max-width: 1450px) {
+    .glide_container {
+        width: 100%;
+        display: flex;
+    }
+
+    .glide {
+        max-width: 300px; /* Set the maximum width of the container */
+        margin: 0 auto; /* Center the container on the page */
+    }
+
+    .glide__track {
+        height: 400px;
+    }
+
+    .glide__slides img {
+        width: 100%; /* Make sure the image takes the full width of the container */
+        height: 100%; /* Make sure the image takes the full height of the container */
+        object-fit: cover; /* Ensure the entire image is visible without distortion */
+    }
+}
+
+@media screen and (max-width: 910px) {
+    .glide_container {
+        flex-direction: column;
+    }
+
+}
+
