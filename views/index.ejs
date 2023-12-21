@@ -1,21 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<%- include ('./partials/head.ejs') %>
-<body>
-<form id="serviceRequestForm">
-    <label for="services">Select Services:</label>
-    <select multiple name="services" id="services">
-        <option value="ServiceA">Service A</option>
-        <option value="ServiceB">Service B</option>
-        <option value="ServiceC">Service C</option>
-    </select>
-    <button type="submit">Check Workers</button>
-</form>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
-<div id="results">
-    <!-- Workers who can perform the requested services will be displayed here -->
+<div class="container">
+    <img class="model" src="/assets/hero_model2.png" alt="model" />
+
+    <div class="welcome_text_button">
+        <h1 class="slogan"><%= translations.slogan %></h1>
+        <button class="booking_link"><%= translations.bookingLink %></button>
+    </div>
+
+    <img class="bg_img" src="/assets/bg/homepage_bg.jpg" alt="bg" />
+    <img class="under_bg_img" src="/assets/bg/over-curve_03.png" alt="under_bg" />
+    <img class="img5" src="/assets/service4.png" alt="something" />
+    <br />
+
+    <div class="textContainer">
+        <h4 class="transitional"><%= translations.welcome %></h4>
+
+        <h1 class="heading"><%= translations.explorer_hair %></h1>
+        <h1 class="heading"><%= translations.studio %></h1>
+        <div class="divider"></div>
+
+        <img class="img6" src="/assets/jelena.png" alt="jelena" />
+        <em class="transitional transitional_worker"><%= translations.stylist %></em>
+        <div class="divider2"></div>
+        <h2 class="worker-name"><%= translations.elenaPahnapuu %></h2>
+        <img class="img7" src="/assets/bg/intro-bg2.jpg" alt="intro_bg2" />
+    </div>
+
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.1/axios.min.js" integrity="sha512-m9S8W3a9hhBHPFAbEIaG7J9P92dzcAWwM42VvJp5n1/M599ldK6Z2st2SfJGsX0QR4LfCVr681vyU5vW8d218w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script type="module" src="/js/components/workers.js"></script>
-</body>
-</html>

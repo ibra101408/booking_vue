@@ -1,4 +1,292 @@
-body{
-    background: #3e3e3e;
-    color: white;
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&display=swap');
+
+* {
+
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+:root{
+    --text_color: #494949;
+    --primary_color: #ceb19c;
+    --primary_button_color: #b84e4e;
+    --hover_button_color: #cf5d5d;
+    --white_color: #ffffff;
+
+
+}
+
+body {
+    font-family: 'Poppins', sans-serif !important;
+    color: var(--text_color);
+}
+h4 .transitional_worker{
+    color: var(--text_color) !important;
+}
+
+/* Make the nav bar in top center */
+.navbar-expand-lg .navbar-nav {
+    margin: auto;
+    gap: 10px
+}
+
+.navbar-collapse {
+    display: flex;
+}
+
+.navbar-brand {
+    margin-left: 60px !important; /* Adjust the value according to your design preference */
+}
+
+
+.nav-item {
+    padding: 10px; /* This adds space around the links */
+    margin: auto 0; /* This centers the links vertically */
+}
+
+.nav-item a, .nav-item.dropdown a {
+    display: block; /* Makes the <a> fill the entire space of the <li> */
+    text-decoration: none;
+    color: var(--primary_color);
+    text-transform: uppercase;
+
+    padding: 10px 20px; /* Add padding to increase the clickable area */
+    transition: color 0.3s; /* Smooth color transition for hover effect */
+}
+
+.nav-item:hover, .nav-item.dropdown a:hover {
+    color: black !important;
+    background-color: var(--primary_color); /* This changes the background color of the <li> on hover */
+}
+
+.nav-item a:hover, .nav-item.dropdown a:hover {
+    background-color: var(--primary_color); /* Existing background color change on hover */
+    color: black !important; /* Change text color to black on hover */
+}
+
+/* This will target only the dropdown items */
+.nav-item.dropdown .dropdown-menu a:hover {
+    color: black !important; /* Or any other color that is visible on your background */
+}
+
+/* Ensure the dropdown toggle does not change color when items are hovered */
+.nav-item.dropdown > a.nav-link:hover {
+    color: #39332f !important; /* Keep the original color or any color you want */
+}
+
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 1080px) {
+    .navbar-brand {
+        margin-left: 5px !important; /* Adjust the value according to your design preference */
+    }
+
+    .welcome_text_button {
+        left: 32% !important;
+    }
+}
+
+
+/* -welcome page- */
+.container {
+    position: relative;
+    /* color: #000000;  replace with your color variable */
+    overflow: hidden;
+}
+
+.model {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 48%;
+    height: auto;
+    margin-left: 25%;
+    display: block;
+    /*background-repeat: no-repeat;
+    background-image: url("assets/bg/homepage_bg.jpg");*/
+}
+
+.welcome_text_button {
+    position: absolute;
+    top: 20%;
+    left: 37%;
+    color: var(--white_color);
+    text-align: center;
+}
+
+@media (max-width: 1300px) {
+    .welcome_text_button {
+        left: 35%;
+    }
+}
+
+@media (max-width: 990px) {
+    .welcome_text_button {
+        top: 23%;
+    }
+}
+
+@media (max-width: 680px) {
+    .welcome_text_button {
+        left: 28% !important;
+    }
+}
+
+.booking_link {
+    background-color: var(--primary_button_color); /* Set the initial background color */
+    color: var(--white_color); /* Set the initial text color */
+    padding: 10px 20px; /* Adjust padding as needed */
+    border: none;
+    border-radius: 5px; /* Optional: Add rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition effect */
+}
+
+/* Change the button color on hover */
+.booking_link:hover {
+    background-color: var(--hover_button_color); /* Change the background color on hover */
+    color: var(--white_color); /* Change the text color on hover */
+}
+
+.bg_img {
+    width: 110%;
+    display: block;
+    margin: 0; /* Remove any margins that might be limiting the width */
+    padding: 0; /* Remove any padding that might be limiting the width */
+    overflow-x: hidden;
+}
+
+.container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+    max-width: 100% !important;
+    padding: 0 !important;
+}
+
+
+.under_bg_img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 1000;
+    margin-top: -9%;
+}
+
+.material-symbols-outlined {
+    display: flex;
+    color: var(--primary_color);
+    /*font-size: 35px;*/
+    justify-content: center;
+    font-variation-settings: 'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+}
+
+.img5 {
+    width: 35px;
+    margin-right: auto;
+    margin-left: auto;
+    display: block;
+    margin-top: 6%;
+}
+
+.img6 {
+    width: 350px;
+    padding-top: 8%;
+    padding-bottom: 2%;
+    z-index: 1;
+}
+
+.img7 {
+    position: absolute;
+    z-index: 0;
+    margin-top: 10%;
+}
+
+.transitional {
+    z-index: 2;
+    margin-bottom: 3%;
+}
+.transitional_worker{
+    margin-bottom: 0;
+
+}
+
+@media screen and (max-width: 990px) {
+    .img7 {
+        margin-top: 29%;
+    }
+
+    .heading {
+        font-size: 50px !important;
+    }
+
+    .model {
+        width: 73%;
+        margin-left: 14%;
+    }
+
+    .bg_img {
+        width: 164%;
+        margin-left: -29%;
+    }
+}
+
+.textContainer {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+}
+
+.heading {
+    /* Add styles from fonts.heading */
+    margin-top: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    color: var(--text_color);
+    font-size: 72px;
+    z-index: 1;
+    margin-bottom: 0;
+    letter-spacing: 3px;
+    text-align: center;
+}
+
+.worker-name {
+    font-size: 38px;
+    font-weight: normal;
+    color: var(--text_color); /* replace with your color variable */
+    font-family: "Cormorant Garamond", serif;
+    z-index: 1;
+    margin-top: 30px;
+    margin-bottom: 2%;
+}
+
+.divider {
+    width: 100px;
+    height: 2px;
+    background: var(--primary_color);
+    z-index: 1;
+    margin: 40px auto
+}
+
+.divider2 {
+    z-index: 1;
+    height: 1px;
+    width: 60px;
+    background: var(--primary_color);
+}
+
+.slogan {
+    color: var(--white_color);
+    text-align: center;
 }

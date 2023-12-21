@@ -1,30 +1,38 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.yaml');
-
+const expressLayouts = require('express-ejs-layouts');
 const app = express();
+require('dotenv').config({});
 
-app.use(bodyParser.json());
+// I18n
+const {I18n} = require('i18n');
+const i18n = new I18n({
+    locales: ['et', 'ru'], directory: __dirname + '/locales', defaultLocale: 'et',
+});
+
+
+// Init middleware
+app.use(i18n.init);
 app.use(express.static('public'));
+app.use(express.json());
+app.use(expressLayouts);
+
+// Set translations
+app.use((req, res, next) => {
+    const locales = ['et', 'ru'];
+    const currentLocale = req.query.lang || 'et';
+    res.locals.locales = locales;
+    res.locals.currentLocale = currentLocale;
+    res.locals.translations = require(`./locales/${currentLocale}.json`);
+    next();
+});
 
 // Set the view engine to ejs
 app.set('view engine', 'ejs');
+app.set('layout', 'layouts/public');
 
-// API Documentation
-app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-
-// Routes for the API
-app.use('/api/workers', require('./api/workers'));
-//app.use('/api/orders', require('./api/orders'));
-
-// Routes for the front-end
-app.use('/workers', require('./routes/workers'));
-//app.use('/orders', require('./routes/orders'));
+// Routes
 app.use('/', require('./routes/index'));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server is running on port http://localhost:${(process.env.PORT || 3000)}`);
 });
