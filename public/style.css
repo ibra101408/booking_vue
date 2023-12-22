@@ -555,7 +555,7 @@ h4 {
 }
 
 .price_text {
-  color: var(--heading_color);
+    color: var(--heading_color);
 }
 
 .transitional_prices {
@@ -592,7 +592,7 @@ h4 {
     grid-row: span 2; /* Material spans two rows */
 }
 
-.service_name_pricelist{
+.service_name_pricelist {
     margin: 0 auto 3% 0;
     width: 80%;
     font-weight: 400;
@@ -669,19 +669,22 @@ span.price {
         width: 85%;
     }
 
-    .service_name_pricelist{
+    .service_name_pricelist {
         width: 60%;
     }
+
     .price_text {
         width: 70%;
     }
 }
+
 @media screen and (max-width: 360px) {
 
-    .service_name_pricelist{
+    .service_name_pricelist {
         width: 60%;
         font-size: 15px;
     }
+
     .price {
         font-size: 15px
     }
@@ -699,7 +702,7 @@ span.price {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
-    padding-bottom: 7%;
+    margin-bottom: 7%;
 }
 
 .transitional_gallery {
@@ -730,9 +733,9 @@ span.price {
 }
 
 .pic-2 {
-     grid-column: col3-start / col5-start;
-     grid-row: row2-start;
- }
+    grid-column: col3-start / col5-start;
+    grid-row: row2-start;
+}
 
 .pic-3 {
     grid-column: col5-start / col5-end;
@@ -753,11 +756,6 @@ span.price {
     grid-column: col1-start/ col2-start;
     grid-row: row1-start / row2-end;
 }
-
-
-
-
-
 
 
 .gallery-item img {
@@ -826,3 +824,111 @@ span.price {
         padding: 3px 0 0 0;
     }
 }
+
+/*** -workingHours page- ***/
+.workingHours_container {
+    background: white;
+    background-repeat: no-repeat;
+    background-position-y: 130px;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    padding-bottom: 7%;
+}
+
+.workingHours_grid_container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.workingHours {
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.divider3 {
+    width: 100px;
+    height: 1px;
+    background: #af936b;
+    margin: 0 auto
+}
+
+.working_hours__table,
+td,
+th {
+    text-align: center;
+}
+
+.working_hours__table {
+    table-layout: fixed;
+    width: 41%;
+    margin: auto 0;
+    height: 88%;
+}
+
+.weekend {
+    color: var(--primary_color) !important;
+}
+
+@media screen and (max-width: 990px) {
+    .working_hours__table {
+        width: 47%;
+    }
+
+    .workingHours {
+        margin-top: 5%;
+    }
+}
+
+@media screen and (max-width: 990px) {
+    .workingHours {
+        margin-top: 5%;
+    }
+}
+
+@media screen and (max-width: 920px) {
+    .workingHours_grid_container {
+        width: 100%;
+    }
+    .working_hours__table{
+        width: 65%;
+        height: 500px;
+    }
+    .workingHours {
+        flex-direction: column;
+        gap: 0;
+        display: flex;
+        align-items: center;
+    }
+}
+
+@media screen and (max-width: 660px) {
+    .working_hours__table {
+        width: 95%;
+    }
+}
+@media screen and (max-width: 460px) {
+
+    .working_hours__table tbody tr{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding-bottom: 24px;
+    }
+
+    .workingHours_img_container{
+        width: 92%
+    }
+    .workingHours_img {
+        margin-left: 15%;
+        width: inherit;
+    }
+
+}
+
+

@@ -193,7 +193,7 @@
 </div>
 
 <div class="container gallery_container">
-    <h4 class="transitional transitional_gallery"><%= translations.our %></h4>
+    <h4 class="transitional transitional_gallery"><%= translations.our_gallery %></h4>
     <h1 class="heading"><%= translations.gallery %></h1>
     <div class="divider"></div>
     <p class="text gallery_text">
@@ -210,6 +210,111 @@
         <button id="next" onclick="nextImage()">&gt;</button>
     </div>
 </div>
+
+<!--working hours-->
+<div class="container workingHours_container">
+    <h4 class="transitional"> <%= translations.our_working_hours%></h4>
+    <h1 class="heading"> <%= translations.working_hours%></h1>
+    <div class="divider"></div>
+
+    <div class="workingHours_grid_container">
+
+        <div class="workingHours">
+            <table class="working_hours__table">
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.monday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">9:00 </h4>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time"> 17:00</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.tuesday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">9:00</h4>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">17:00</h4>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.wednesday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">9:00</h4>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">17:00</h4>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.thursday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">9:00</h4>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">17:00</h4>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.friday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">9:00</h4>
+                    </td>
+                    <td>
+                        <h4 class="working_hours__time">17:00</h4>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.saturday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td colspan="2">
+                        <h4 class="working_hours__time weekend"> <%= translations.saturday_time %></h4>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="working_hours__day-container">
+                        <h4 class="working_hours__day__heading"> <%= translations.sunday%></h4>
+                        <div class="divider3"></div>
+                    </td>
+                    <td colspan="2">
+                        <h4 class="working_hours__time weekend"> <%= translations.sunday_time %></h4>
+                    </td>
+                </tr>
+            </table>
+
+
+            <div class="workingHours_img_container">
+                <img src="/assets/stylist_png.png" class="workingHours_img" alt="working hours">
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <script>
         const imageUrls = [
             './assets/gallery/gallery_image_1.jpg',
