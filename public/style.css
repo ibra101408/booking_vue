@@ -457,7 +457,7 @@ h4 {
     flex-wrap: wrap;
     align-content: center;
     align-items: center;
-    padding-bottom: 7%;
+    padding-bottom: 7% !important;
 }
 
 .transitional_ownStyle {
@@ -517,4 +517,175 @@ h4 {
     }
 
 }
+
+/*prices*/
+
+.prices_container::before,
+.prices_container::after {
+    content: "";
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    width: 50%;
+    height: 88px;
+    background: #ceb19c;
+}
+
+.prices_container::before {
+    left: 0;
+    border-radius: 0 50px 0 0;
+}
+
+.prices_container::after {
+    right: 0;
+    border-radius: 50px 0 0 0;
+}
+
+
+.prices_container {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 1) 2%, rgba(206, 177, 156, 1) 2%);
+    color: var(--heading_color);
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    position: relative;
+    padding-top: 50px; /* Adjust this value based on the height of the pseudo-elements */
+}
+
+.price_text {
+  color: var(--heading_color);
+}
+
+.transitional_prices {
+    margin-top: 100px;
+    color: var(--heading_color) !important;
+}
+
+.price_list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 70%;
+    margin: 0 auto;
+}
+
+.price_card_container {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Make sure each container takes the full height */
+    padding-bottom: 7%;
+}
+
+.men-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.women {
+    grid-column: span 1; /* Women takes two columns */
+}
+
+.material {
+    grid-column: span 2; /* Material takes two columns */
+    grid-row: span 2; /* Material spans two rows */
+}
+
+.service_name_pricelist{
+    margin: 0 auto 3% 0;
+    width: 80%;
+    font-weight: 400;
+}
+
+span.price {
+    text-align: end;
+}
+
+.price_card {
+    position: relative;
+    padding: 80px 15px;
+    background: #ceb19b;
+}
+
+.price_card::before,
+.price_card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 0;
+    background: #d9c0ae;
+    pointer-events: none;
+}
+
+.price_card::before {
+    left: 0;
+    border-radius: 0 60px 60px 0; /* Adjusted for top left and bottom left corners */
+}
+
+.price_card::after {
+    right: 0;
+    left: 50%;
+    border-radius: 60px 0 0 60px; /* Adjusted for top right and bottom right corners */
+}
+
+
+.price_card_name {
+    margin: 35px auto;
+}
+
+.price_card ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    margin: 0;
+    text-align: left; /* Align text to the left */
+}
+
+.price_card li {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: baseline;
+    position: relative;
+    z-index: 2;
+}
+
+.price_card.material {
+    padding: 30px 15px 0 15px
+}
+
+@media screen and (max-width: 990px) {
+    .price_list {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 770px) {
+    .price_list {
+        display: flex;
+        flex-direction: column;
+        width: 85%;
+    }
+
+    .service_name_pricelist{
+        width: 60%;
+    }
+    .price_text {
+        width: 70%;
+    }
+}
+@media screen and (max-width: 360px) {
+
+    .service_name_pricelist{
+        width: 60%;
+        font-size: 15px;
+    }
+    .price {
+        font-size: 15px
+    }
+}
+
+
 
