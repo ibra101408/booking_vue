@@ -31,7 +31,7 @@ app.set('view engine', 'ejs');
 app.set('layout', 'layouts/public');
 
 // Routes
-app.use('/', require('./routes/about_services'));
+app.use('/', require('./routes/services'));
 app.use('/', require('./routes/index'));
 
 app.listen(process.env.PORT || 3000, () => {
