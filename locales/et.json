@@ -11,7 +11,7 @@
   "explorer_hair": "EXPLORER HAIR",
   "studio": "STUDIO",
   "stylist": "Stilist",
-  "elenaPahnapuu": "Елена Пяхнапуу",
+  "elenaPahnapuu": "Elena Pähnapuu",
   "our": "Meie",
   "saloon_text_services": "Meie salong pakub kõiki juuksuriteenuseid nii naistele kui ka meestele. Meie stilistid aitavad teil kujundada just teile sobiva individuaalse kuvandi lähtudes teie soovidest, välimuse eripärast, iseloomust, harjumistest ja eluviisist.",
   "choose": "Vali",
@@ -23,6 +23,7 @@
   "women": "NAISED",
   "material": "MATERJAL",
   "is_price_range": "Al.",
-  "additional_material": "(+materjal)"
+  "additional_material": "(+materjal)",
+  "gallery_text": "Kõik meie meistrid täiendavad pidevalt oma oskusi."
 }
 
