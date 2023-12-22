@@ -24,5 +24,17 @@
   "material": "МАТЕРИАЛ",
   "is_price_range": "от ",
   "additional_material": "(+материал)",
-  "gallery_text": "Все наши мастера постоянно совершенствуются в своем деле."
+  "our_gallery": "Наша",
+  "gallery_text": "Все наши мастера постоянно совершенствуются в своем деле.",
+  "our_working_hours": "Наше",
+  "working_hours": "Время Работы",
+  "monday": "ПОНЕДЕЛЬНИК",
+  "tuesday": "ВТОРНИК",
+  "wednesday": "СРЕДА",
+  "thursday": "ЧЕТВЕРГ",
+  "friday": "ПЯТНИЦА",
+  "saturday": "СУББОТА",
+  "sunday": "ВОСКРЕСЕНЬЕ",
+  "saturday_time": "ПО ДОГОВОРЁННОСТИ",
+  "sunday_time": "ЗАКРЫТО"
 }

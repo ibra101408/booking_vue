@@ -24,6 +24,18 @@
   "material": "MATERJAL",
   "is_price_range": "Al.",
   "additional_material": "(+materjal)",
-  "gallery_text": "Kõik meie meistrid täiendavad pidevalt oma oskusi."
+  "gallery_text": "Kõik meie meistrid täiendavad pidevalt oma oskusi.",
+  "our_gallery": "Meie",
+  "our_working_hours": "Meie",
+  "working_hours": "Tööaeg",
+  "monday": "ESMASPÄEV",
+  "tuesday": "TEISIPÄEV",
+  "wednesday": "KOLMAPÄEV",
+  "thursday": "NELJAPÄEV",
+  "friday": "REEDE",
+  "saturday": "LAUPÄEV",
+  "sunday": "PÜHAPÄEV",
+  "saturday_time": "KOKKULEPPEL",
+  "sunday_time": "SULETUD"
 }
 
