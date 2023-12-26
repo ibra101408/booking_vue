@@ -1,13 +1,13 @@
--- MariaDB dump 10.19  Distrib 10.4.28-MariaDB, for osx10.10 (x86_64)
+-- MySQL dump 10.13  Distrib 8.1.0, for macos14.0 (arm64)
 --
--- Host: 127.0.0.1    Database: database
+-- Host: localhost    Database: database
 -- ------------------------------------------------------
 -- Server version	8.2.0
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,14 +21,14 @@
 
 DROP TABLE IF EXISTS `about_services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `about_services` (
   `name_et` varchar(20) DEFAULT NULL,
   `description_et` varchar(250) DEFAULT NULL,
   `name_ru` varchar(250) DEFAULT NULL,
   `description_ru` varchar(250) DEFAULT NULL,
   `img_path` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +47,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `appointment_services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `appointment_services` (
   `appointment_services_id` int NOT NULL AUTO_INCREMENT,
   `service_id` int DEFAULT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE `appointment_services` (
   KEY `appointment_id` (`appointment_id`),
   CONSTRAINT `appointment_services_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`),
   CONSTRAINT `appointment_services_ibfk_2` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -77,7 +77,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `appointments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `appointments` (
   `appointment_id` int NOT NULL AUTO_INCREMENT,
   `client_id` int DEFAULT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE `appointments` (
   KEY `slot_id` (`slot_id`),
   CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`),
   CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`slot_id`) REFERENCES `time_slots_old` (`slot_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -106,12 +106,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `category` (
   `category_id` int NOT NULL AUTO_INCREMENT,
   `name` enum('Men','Women','Children','Material') NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -130,7 +130,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `clients`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `clients` (
   `client_id` int NOT NULL AUTO_INCREMENT,
   `clientName` varchar(255) NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE `clients` (
   `clientEmail` varchar(255) DEFAULT NULL,
   `additional_info` text,
   PRIMARY KEY (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=277 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=277 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -157,12 +157,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `dates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `dates` (
   `date_id` int NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,
   PRIMARY KEY (`date_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +181,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `invoice`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `invoice` (
   `invoice_id` int NOT NULL AUTO_INCREMENT,
   `total_price` decimal(10,2) NOT NULL,
@@ -190,7 +190,7 @@ CREATE TABLE `invoice` (
   UNIQUE KEY `invoice_invoice_id_uindex` (`invoice_id`),
   KEY `fk_appointment_services` (`appointment_services_id`),
   CONSTRAINT `fk_appointment_services` FOREIGN KEY (`appointment_services_id`) REFERENCES `appointment_services` (`appointment_services_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -209,7 +209,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `service`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `service` (
   `service_id` int NOT NULL AUTO_INCREMENT,
   `category_id` int DEFAULT NULL,
@@ -223,7 +223,7 @@ CREATE TABLE `service` (
   PRIMARY KEY (`service_id`),
   KEY `section_id` (`category_id`),
   CONSTRAINT `service_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -242,14 +242,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `test_appointment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `test_appointment` (
   `id` int NOT NULL AUTO_INCREMENT,
   `client_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `client_id_fk` (`client_id`),
   CONSTRAINT `client_id_fk` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -267,13 +267,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `time_slot`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `time_slot` (
   `slot_id` int NOT NULL AUTO_INCREMENT,
   `start_time` datetime DEFAULT NULL,
   `end_time` datetime DEFAULT NULL,
   PRIMARY KEY (`slot_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +292,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `time_slots_old`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `time_slots_old` (
   `slot_id` int NOT NULL AUTO_INCREMENT,
   `date_id` int DEFAULT NULL,
@@ -300,7 +300,7 @@ CREATE TABLE `time_slots_old` (
   PRIMARY KEY (`slot_id`),
   KEY `date_id` (`date_id`),
   CONSTRAINT `time_slots_old_ibfk_1` FOREIGN KEY (`date_id`) REFERENCES `dates` (`date_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -319,13 +319,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `worker`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `worker` (
   `worker_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`worker_id`),
   UNIQUE KEY `worker_worker_id_uindex` (`worker_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -344,7 +344,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `worker_services`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `worker_services` (
   `id` int NOT NULL AUTO_INCREMENT,
   `worker_id` int DEFAULT NULL,
@@ -354,7 +354,7 @@ CREATE TABLE `worker_services` (
   KEY `haircut_id` (`service_id`),
   CONSTRAINT `worker_services_ibfk_1` FOREIGN KEY (`worker_id`) REFERENCES `worker` (`worker_id`),
   CONSTRAINT `worker_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -376,4 +376,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-26 11:54:20
+-- Dump completed on 2023-12-26 12:23:02
