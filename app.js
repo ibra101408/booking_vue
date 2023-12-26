@@ -31,6 +31,9 @@ app.set('view engine', 'ejs');
 app.set('layout', 'layouts/public');
 
 // Routes
+app.use('/category', require('./routes/category'));
+app.use('/google', require('./routes/google'));
+app.use('/workers', require('./routes/workers'));
 app.use('/', require('./routes/services'));
 app.use('/', require('./routes/index'));
 

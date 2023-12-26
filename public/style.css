@@ -1036,3 +1036,12 @@ th {
         width: 100%;
     }
 }
+
+
+
+.unavailable-slot{
+    background: #ff0000;
+}
+.highlighted-slot{
+    background: #59b84e;
+}
