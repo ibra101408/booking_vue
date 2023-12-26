@@ -9,21 +9,17 @@
     }
 
     .time-label {
-        background-color: #f0f0f0;
+        vertical-align: top;
         text-align: right;
         padding: 10px 5px;
-        font-size: 0.85em;
-        width: 50px; /* Fixed width for the time labels */
+        font-size: 0.4em; /* Adjust this value as needed to make the text smaller */
+        width: 50px;
     }
 
     .timeslot-row {
         display: flex;
-        border-bottom: 1px solid #f0f0f0; /* Add a border to each row for the striped look */
-        align-items: center;
-    }
-
-    .sequence {
-        background-color: #c6e1c6; /* Or any green shade you prefer */
+        border-bottom: 1px solid #f0f0f0;
+        align-items: flex-start; /* Changed from center to flex-start */
     }
 
     .timeslot {
@@ -341,14 +337,7 @@
                 let date = new Date(dateString);
                 return date.getMinutes() === 0;
             },
-            getClass(slot) {
-                return {
-                    'available': slot.isAvailable,
-                    'unavailable': !slot.isAvailable,
-                    'sequence': this.isInSequence(slot)
-                    // ... add logic for 'sequence-hover' if needed
-                };
-            },
+
             highlightAvailableRanges() {
                 // Reset the sequenceIndices array
                 this.sequenceIndices = [];
