@@ -32,7 +32,7 @@ app.set('layout', 'layouts/public');
 
 // Routes
 app.use('/category', require('./routes/category'));
-app.use('/google', require('./routes/google'));
+app.use('/api', require('./routes/api'));
 app.use('/workers', require('./routes/workers'));
 app.use('/', require('./routes/services'));
 app.use('/', require('./routes/index'));

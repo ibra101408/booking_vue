@@ -281,22 +281,17 @@
                 console.log("date", selectedDate);
 
                 try {
+                    const responseData = await http.get(`/timeslots?worker=${selectedWorker.value}&date=${selectedDate.value}`);
 
-                    const response = await fetch(`/google/get_slots?worker=${selectedWorker.value}&date=${selectedDate.value}`);
-                    if (!response.ok) {
-                        throw new Error(`Error fetching available slots: ${response.status} ${response.statusText}`);
-                    }
-
-                    const responseData = await response.json();
-                    slots.value = responseData
-                        .map(slot => ({
-                            startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
-                            endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
-                            isAvailable: slot.isAvailable,
-                        }));
+                    slots.value = responseData.map(slot => ({
+                        startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
+                        endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
+                        isAvailable: slot.isAvailable,
+                    }));
 
                 } catch (error) {
                     console.error('Error fetching available slots:', error);
+                    // Error modal is handled within the http utility
                 }
             };
 
@@ -367,7 +362,6 @@
 
                 // Fetch categories when the component is mounted
                 getCategories();
-                fetchSlots();
                 const response = await axios.get('/services');
                 allServices.value = response.data
 

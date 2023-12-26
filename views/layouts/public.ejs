@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
+    <meta name="viewport" content="width=1920, initial-scale=1.0">
     <title>Explorer Hair Studio</title>
     <link rel="stylesheet" href="style.css">
 
@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.1/axios.min.js"
             integrity="sha512-m9S8W3a9hhBHPFAbEIaG7J9P92dzcAWwM42VvJp5n1/M599ldK6Z2st2SfJGsX0QR4LfCVr681vyU5vW8d218w=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/js/http.js"></script>
 </head>
 <body>
 
@@ -22,6 +23,24 @@
     <%- include ('../booking.ejs') %>
     <%-// body %>
 </main>
+
+<div class="modal" tabindex="-1" id="error-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="error-modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="error-modal-body">
+                <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <%- //include ('../partials/footer.ejs') %>
 
 </body>
