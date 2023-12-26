@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Timeslot</title>
+    <style>#timeslotContainer {
+        display: flex;
+        flex-direction: column;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Apple-like font */
+    }
+
+    .time-label {
+        background-color: #f0f0f0;
+        text-align: right;
+        padding: 10px 5px;
+        font-size: 0.85em;
+        width: 50px; /* Fixed width for the time labels */
+    }
+
+    .timeslot-row {
+        display: flex;
+        border-bottom: 1px solid #f0f0f0; /* Add a border to each row for the striped look */
+        align-items: center;
+    }
+
+    .sequence {
+        background-color: #c6e1c6; /* Or any green shade you prefer */
+    }
+
+    .timeslot {
+        flex-grow: 1;
+        background-color: #fff;
+        text-align: left;
+        padding: 10px;
+        border-left: 1px solid #f0f0f0; /* Separate time slots with a border */
+        overflow: hidden; /* Prevent content from spilling over */
+        white-space: nowrap; /* Keep the content on one line */
+        text-overflow: ellipsis;
+    }
+
+    .available {
+        background-color: #fff; /* or your preferred color for available slots */
+    }
+
+    .unavailable {
+        background-color: #d8d8d8; /* or your preferred color for unavailable slots */
+    }
+
+    .sequence {
+        background-color: #c6e1c6; /* or your preferred color for selected sequences */
+    }
+
+    /* Add new style for hovering effect */
+    .sequence-hover {
+        border: 1px solid blue; /* Blue border for hover effect */
+        background-color: lightblue; /* Light blue background for hover effect */
+        z-index: 10; /* Ensure it's above other elements */
+    }
+
+    .bold-time {
+        font-weight: bold;
+        color: black; /* Or any color you prefer for full hours */
+    }
+
+    .gray-time {
+        color: rgb(128, 128, 128); /* Or any shade of gray you prefer for non-full hours */
+    }
+
+    .sequence-hover {
+        border: 1px solid blue; /* Blue border for hover effect */
+        background-color: lightblue; /* Light blue background for hover effect */
+        z-index: 10; /* Ensure it's above other elements */
+    }
+    </style>
+</head>
+<body>
+<div id="app">
+    <select v-model="selectedDuration" @change="highlightAvailableRanges">
+        <option value="0.5">0.5 hours</option>
+        <option value="1">1 hour</option>
+        <option value="2">2 hours</option>
+    </select>
+
+    <div id="timeslotContainer">
+        <div v-for="(slot, index) in timeslots" :key="index" class="timeslot-row">
+            <div class="time-label"
+                 :class="{'bold-time': isFullHour(slot.start), 'gray-time': !isFullHour(slot.start)}">
+                {{ formatTime(slot.start) }}
+            </div>
+            <div class="timeslot"
+                 :class="{
+       'available': slot.isAvailable,
+       'unavailable': !slot.isAvailable,
+       'sequence': isInSequence(index),
+       'sequence-hover': isInHoverSequence(index)
+     }"
+                 @mouseover="highlightSequenceFrom(index)"
+                 @mouseout="clearHighlight"
+                 @click="handleSlotClick(index)">
+                {{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            selectedDuration: 0.5,
+            timeslots: [
+                {
+                    "start": "2023-12-26T09:00:00.000+02:00",
+                    "end": "2023-12-26T09:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T09:15:00.000+02:00",
+                    "end": "2023-12-26T09:30:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T09:30:00.000+02:00",
+                    "end": "2023-12-26T09:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T09:45:00.000+02:00",
+                    "end": "2023-12-26T10:00:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T10:00:00.000+02:00",
+                    "end": "2023-12-26T10:15:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T10:15:00.000+02:00",
+                    "end": "2023-12-26T10:30:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T10:30:00.000+02:00",
+                    "end": "2023-12-26T10:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T10:45:00.000+02:00",
+                    "end": "2023-12-26T11:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T11:00:00.000+02:00",
+                    "end": "2023-12-26T11:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T11:15:00.000+02:00",
+                    "end": "2023-12-26T11:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T11:30:00.000+02:00",
+                    "end": "2023-12-26T11:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T11:45:00.000+02:00",
+                    "end": "2023-12-26T12:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T12:00:00.000+02:00",
+                    "end": "2023-12-26T12:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T12:15:00.000+02:00",
+                    "end": "2023-12-26T12:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T12:30:00.000+02:00",
+                    "end": "2023-12-26T12:45:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T12:45:00.000+02:00",
+                    "end": "2023-12-26T13:00:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T13:00:00.000+02:00",
+                    "end": "2023-12-26T13:15:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T13:15:00.000+02:00",
+                    "end": "2023-12-26T13:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T13:30:00.000+02:00",
+                    "end": "2023-12-26T13:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T13:45:00.000+02:00",
+                    "end": "2023-12-26T14:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T14:00:00.000+02:00",
+                    "end": "2023-12-26T14:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T14:15:00.000+02:00",
+                    "end": "2023-12-26T14:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T14:30:00.000+02:00",
+                    "end": "2023-12-26T14:45:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T14:45:00.000+02:00",
+                    "end": "2023-12-26T15:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T15:00:00.000+02:00",
+                    "end": "2023-12-26T15:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T15:15:00.000+02:00",
+                    "end": "2023-12-26T15:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T15:30:00.000+02:00",
+                    "end": "2023-12-26T15:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T15:45:00.000+02:00",
+                    "end": "2023-12-26T16:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T16:00:00.000+02:00",
+                    "end": "2023-12-26T16:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T16:15:00.000+02:00",
+                    "end": "2023-12-26T16:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T16:30:00.000+02:00",
+                    "end": "2023-12-26T16:45:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T16:45:00.000+02:00",
+                    "end": "2023-12-26T17:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T17:00:00.000+02:00",
+                    "end": "2023-12-26T17:15:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T17:15:00.000+02:00",
+                    "end": "2023-12-26T17:30:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T17:30:00.000+02:00",
+                    "end": "2023-12-26T17:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T17:45:00.000+02:00",
+                    "end": "2023-12-26T18:00:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T18:00:00.000+02:00",
+                    "end": "2023-12-26T18:15:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T18:15:00.000+02:00",
+                    "end": "2023-12-26T18:30:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T18:30:00.000+02:00",
+                    "end": "2023-12-26T18:45:00.000+02:00",
+                    "isAvailable": false
+                },
+                {
+                    "start": "2023-12-26T18:45:00.000+02:00",
+                    "end": "2023-12-26T19:00:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T19:00:00.000+02:00",
+                    "end": "2023-12-26T19:15:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T19:15:00.000+02:00",
+                    "end": "2023-12-26T19:30:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T19:30:00.000+02:00",
+                    "end": "2023-12-26T19:45:00.000+02:00",
+                    "isAvailable": true
+                },
+                {
+                    "start": "2023-12-26T19:45:00.000+02:00",
+                    "end": "2023-12-26T20:00:00.000+02:00",
+                    "isAvailable": false
+                }
+            ],
+            sequenceIndices: [],
+            hoverSequenceIndices: [] // This will hold the indices of slots when hovering
+        },
+        methods: {
+            formatTime(dateString) {
+                let date = new Date(dateString);
+                return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            },
+            isFullHour(dateString) {
+                let date = new Date(dateString);
+                return date.getMinutes() === 0;
+            },
+            getClass(slot) {
+                return {
+                    'available': slot.isAvailable,
+                    'unavailable': !slot.isAvailable,
+                    'sequence': this.isInSequence(slot)
+                    // ... add logic for 'sequence-hover' if needed
+                };
+            },
+            highlightAvailableRanges() {
+                // Reset the sequenceIndices array
+                this.sequenceIndices = [];
+
+                let slotsNeeded = this.selectedDuration * 4; // Assuming each timeslot is 15 minutes
+                this.timeslots.forEach((slot, index) => {
+                    if (!slot.isAvailable) return;
+
+                    let sequenceEnd = index + slotsNeeded - 1;
+                    if (sequenceEnd < this.timeslots.length) {
+                        let isValidSequence = this.timeslots.slice(index, index + slotsNeeded)
+                            .every(s => s.isAvailable);
+
+                        if (isValidSequence) {
+                            for (let i = index; i <= sequenceEnd; i++) {
+                                this.sequenceIndices.push(i);
+                            }
+                        }
+                    }
+                });
+            },
+            isInSequence(index) {
+                // Check if the current index is in the sequenceIndices array
+                return this.sequenceIndices.includes(index);
+            },
+            highlightSequenceFrom(index) {
+                // Reset the hover sequence
+                this.hoverSequenceIndices = [];
+                let slotsNeeded = this.selectedDuration * 4; // Assuming each timeslot is 15 minutes
+
+                // Determine if the hovered slot can start a valid sequence
+                if (this.timeslots[index].isAvailable) {
+                    let sequenceEnd = index + slotsNeeded - 1;
+                    if (sequenceEnd < this.timeslots.length) {
+                        let isValidSequence = this.timeslots.slice(index, index + slotsNeeded)
+                            .every(s => s.isAvailable);
+
+                        if (isValidSequence) {
+                            // Add the indices to the hover sequence
+                            for (let i = index; i <= sequenceEnd; i++) {
+                                this.hoverSequenceIndices.push(i);
+                            }
+                        }
+                    }
+                }
+            },
+            clearHighlight() {
+                // Clear the hover sequence
+                this.hoverSequenceIndices = [];
+            },
+            isInHoverSequence(index) {
+                // Check if the current index is in the hoverSequenceIndices array
+                return this.hoverSequenceIndices.includes(index);
+            },
+
+            handleSlotClick(index) {
+                let slotsNeeded = this.selectedDuration * 4; // Assuming each timeslot is 15 minutes
+                let sequenceEnd = index + slotsNeeded - 1;
+
+                if (sequenceEnd < this.timeslots.length) {
+                    let isValidSequence = this.timeslots.slice(index, index + slotsNeeded)
+                        .every(s => s.isAvailable);
+
+                    if (isValidSequence) {
+                        let startTime = new Date(this.timeslots[index].start);
+                        let endTime = new Date(this.timeslots[sequenceEnd].end);
+                        alert(`Selected Time Range:\nStart: ${startTime.toLocaleTimeString()}\nEnd: ${endTime.toLocaleTimeString()}`);
+                    } else {
+                        alert("Invalid sequence. Please select a different start time.");
+                    }
+                }
+            }
+
+        },
+        watch: {
+            // Whenever selectedDuration changes, run the highlightAvailableRanges method
+            selectedDuration(newVal, oldVal) {
+                this.highlightAvailableRanges();
+            }
+        },
+        mounted() {
+            // Initial call to populate and highlight the timeslot grid
+            this.highlightAvailableRanges();
+        }
+    });
+</script>
+
+
+</body>
+</html>
+
+
