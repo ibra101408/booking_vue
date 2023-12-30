@@ -1,5 +1,6 @@
 const {google} = require('googleapis');
 const {DateTime} = require('luxon');
+
 //const timers = require('timers');
 
 /**
@@ -74,57 +75,58 @@ class GoogleCalendar {
      */
 
 
-    async scheduleEvent(start, end, clientName, clientTel, clientEmail,  clientAdditionalInfo, selectedServices, calendarId) {
-        try {
-            // Validate input parameters if necessary
-            const startDateTimeLocal = DateTime.fromISO(start, {zone: this.timezone});
-            const endDateTimeLocal = DateTime.fromISO(end, {zone: this.timezone});
+    async scheduleEvent(start, end, clientName, clientTel, clientEmail, clientAdditionalInfo, selectedServices, calendarId) {
+        // Validate input parameters if necessary
+        const startDateTimeLocal = DateTime.fromISO(start, {zone: this.timezone});
+        const endDateTimeLocal = DateTime.fromISO(end, {zone: this.timezone});
 
-            // Fetch existing events for the specified time range
-            await this.checkEventConflicts(start, end, calendarId);
+        // Fetch existing events for the specified time range
+        await this.checkEventConflicts(start, end, calendarId);
 
-            // Convert array to a comma-separated string
-            const selectedServicesString = selectedServices.map(service => service.name).join(', ');
+        // Convert array to a comma-separated string
+        const selectedServicesString = selectedServices.map(service => service.name).join(', ');
 
-            const googleApiResponse = await this.calendar.events.insert({
-                calendarId,
-                auth: this.oauth2Client,
-                requestBody: {
-                    start: {
-                        dateTime: startDateTimeLocal.toUTC().toISO(),
-                        timeZone: this.timezone,
-                    },
-                    end: {
-                        dateTime: endDateTimeLocal.toUTC().toISO(),
-                        timeZone: this.timezone,
-                    },
-                    summary: `Test, ${clientName}, ${clientTel}, ${selectedServicesString}, additional Info: ,${clientAdditionalInfo}`,
+        const googleApiResponse = await this.calendar.events.insert({
+            calendarId,
+            auth: this.oauth2Client,
+            requestBody: {
+                start: {
+                    dateTime: startDateTimeLocal.toUTC().toISO(),
+                    timeZone: this.timezone,
                 },
-            });
+                end: {
+                    dateTime: endDateTimeLocal.toUTC().toISO(),
+                    timeZone: this.timezone,
+                },
+                // TODO: remove the test string
+                summary: `${clientName}, ${clientTel}, ${selectedServicesString}` +
+                    (clientAdditionalInfo ? `, ${clientAdditionalInfo}` : ''),
+                extendedProperties: {
+                    private: {
+                        clientName,
+                        clientTel,
+                        clientEmail,
+                        clientAdditionalInfo,
+                        selectedServices: selectedServicesString
+                    },
+                }
+            },
+        });
 
-            return googleApiResponse.data; // Return the scheduled event data
-        } catch (error) {
-            console.error('Error scheduling event1:', error.message);
-            throw new Error('Error scheduling event::');
-        }
+        return googleApiResponse.data; // Return the scheduled event data
+
     }
 
     async checkEventConflicts(start, end, calendarId) {
-        try {
-            // Fetch existing events for the specified time range
-            const existingEvents = await this.fetchEventsForDateRange(start, end, calendarId);
-            console.log('existingEvents', existingEvents);
-            // Check for conflicts
-            if (existingEvents.length > 0) {
-                // There is a conflict, throw an error
-                throw new Error('There is a scheduling conflict. Please choose a different time.');
-            }
-            return true;
-        } catch (error) {
-            console.log('Error: ', start, end);
-            console.error('Error checking event conflicts:', error.message);
-            throw new Error('Error scheduling event2!');
+        // Fetch existing events for the specified time range
+        const existingEvents = await this.fetchEventsForDateRange(start, end, calendarId);
+        console.log('existingEvents', existingEvents);
+        // Check for conflicts
+        if (existingEvents.length > 0) {
+            // There is a conflict, throw an error
+            throw new Error('409');
         }
+        return true;
     }
 
     async fetchEventsForDateRange(start, end, calendarId) {

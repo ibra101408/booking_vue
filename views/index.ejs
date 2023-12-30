@@ -5,8 +5,8 @@
     <img class="model" src="/assets/hero_model2.png" alt="model"/>
 
     <div class="welcome_text_button">
-        <h1 class="slogan"><%= translations.slogan %></h1>
-        <button class="booking_link"><%= translations.bookingLink %></button>
+        <h1 class="slogan"><%= __('slogan') %></h1>
+        <button class="booking_link"><%= __('bookingLink') %></button>
     </div>
 
     <img class="bg_img" src="/assets/bg/homepage_bg.jpg" alt="bg"/>
@@ -15,27 +15,27 @@
     <br/>
 
     <div class="textContainer">
-        <h4 class="transitional"><%= translations.welcome %></h4>
+        <h4 class="transitional"><%= __('welcome') %></h4>
 
-        <h1 class="heading"><%= translations.explorer_hair %></h1>
-        <h1 class="heading"><%= translations.studio %></h1>
+        <h1 class="heading"><%= __('explorer_hair') %></h1>
+        <h1 class="heading"><%= __('studio') %></h1>
         <div class="divider"></div>
 
         <img class="img6" src="/assets/jelena.png" alt="jelena"/>
-        <em class="transitional transitional_worker"><%= translations.stylist %></em>
+        <em class="transitional transitional_worker"><%= __('stylist') %></em>
         <div class="divider2"></div>
-        <h2 class="worker-name"><%= translations.elenaPahnapuu %></h2>
+        <h2 class="worker-name"><%= __('elenaPahnapuu') %></h2>
         <img class="img7" src="/assets/bg/intro-bg2.jpg" alt="intro_bg2"/>
     </div>
 
 </div>
 <!--services-->
 <div class="container service_container">
-    <h4 class="transitional transitional_services"><%= translations.our %></h4>
-    <h1 class="heading"><%= translations.services %></h1>
+    <h4 class="transitional transitional_services"><%= __('our') %></h4>
+    <h1 class="heading"><%= __('services') %></h1>
     <div class="divider"></div>
     <p class="text text_service">
-        <%= translations.saloon_text_services %>
+        <%= __('saloon_text_services') %>
     </p>
     <div class="service_grid_container">
         <% about_services.forEach(service => {
@@ -51,11 +51,11 @@
 
 <!--own style-->
 <div class="container ownStyle_container">
-    <h4 class="transitional transitional_ownStyle"><%= translations.choose %></h4>
-    <h1 class="heading"><%= translations.own_style %></h1>
+    <h4 class="transitional transitional_ownStyle"><%= __('choose') %></h4>
+    <h1 class="heading"><%= __('own_style') %></h1>
     <div class="divider"></div>
     <p class="text text_ownStyle">
-        <%= translations.own_style_text %>
+        <%= __('own_style_text') %>
     </p>
 
     <div class="glide_container">
@@ -92,17 +92,17 @@
 <!--pricelist  -->
 
 <div class="container prices_container">
-    <h4 class="transitional transitional_prices"><%= translations.our %></h4>
-    <h1 class="heading"><%= translations.prices %></h1>
+    <h4 class="transitional transitional_prices"><%= __('our') %></h4>
+    <h1 class="heading"><%= __('prices') %></h1>
     <div class="divider dark_divider"></div>
     <p class="text price_text">
-        <%= translations.creativity_text %>
+        <%= __('creativity_text') %>
     </p>
 
     <div class="price_list">
         <div class="price_grid_container men-child">
             <div class="price_card_container">
-                <h1 class="price_card_name"><%= translations.men %></h1>
+                <h1 class="price_card_name"><%= __('men') %></h1>
                 <div class="price_card men">
                     <ul>
                         <% services
@@ -112,10 +112,10 @@
                                 <span class="service_name service_name_pricelist"><%= service.name %></span>
                                 <span class="price <%= service.is_price_range ? 'is_price_range' : '' %>">
                                     <% if (service.is_price_range) { %>
-                                        <span class="note"><%= translations.is_price_range %></span>
+                                        <span class="note"><%= __('is_price_range') %></span>
                                     <% } %>
                                     <%= service.price %>€
-                                    <%= service.is_additional_material ? translations.additional_material : '' %>
+                                    <%= service.is_additional_material ? __('additional_material') : '' %>
 
                                 </span>
 
@@ -125,7 +125,7 @@
                 </div>
             </div>
             <div class="price_card_container">
-                <h1 class="price_card_name"><%= translations.child %></h1>
+                <h1 class="price_card_name"><%= __('child') %></h1>
                 <div class="price_card child">
                     <ul>
                         <% services
@@ -135,7 +135,7 @@
                                 <span class="service_name service_name_pricelist"><%= service.name %></span>
                                 <span class="price <%= service.is_price_range ? 'is_price_range' : '' %>">
                                     <% if (service.is_price_range) { %>
-                                        <span class="note"><%= translations.is_price_range %></span>
+                                        <span class="note"><%= __('is_price_range') %></span>
                                     <% } %>
                                     <%= service.price %>€
                                     <%= service.is_additional_material ? translations.additional_material : '' %>
@@ -149,7 +149,7 @@
 
         <div class="price_grid_container women">
             <div class="price_card_container">
-                <h1 class="price_card_name"><%= translations.women %></h1>
+                <h1 class="price_card_name"><%= __('women') %></h1>
 
                 <div class="price_card women">
                     <ul>
@@ -160,10 +160,10 @@
                                 <span class="service_name service_name_pricelist"><%= service.name %></span>
                                 <span class="price <%= service.is_price_range ? 'is_price_range' : '' %>">
                                     <% if (service.is_price_range) { %>
-                                        <span class="note"><%= translations.is_price_range %></span>
+                                        <span class="note"><%= __('is_price_range') %></span>
                                     <% } %>
                                     <%= service.price %>€
-                                    <%= service.is_additional_material ? translations.additional_material : '' %>
+                                    <%= service.is_additional_material ? __('additional_material') : '' %>
                                 </span>
                             </li>
                         <% }); %>
@@ -174,7 +174,7 @@
 
         <div class="price_grid_container material">
             <div class="price_card_container">
-                <h1 class="price_card_name"><%= translations.material %></h1>
+                <h1 class="price_card_name"><%= __('material') %></h1>
                 <div class="price_card material">
                     <ul>
                         <% services
@@ -193,11 +193,11 @@
 </div>
 
 <div class="container gallery_container">
-    <h4 class="transitional transitional_gallery"><%= translations.our_gallery %></h4>
-    <h1 class="heading"><%= translations.gallery %></h1>
+    <h4 class="transitional transitional_gallery"><%= __('our_gallery') %></h4>
+    <h1 class="heading"><%= __('gallery') %></h1>
     <div class="divider"></div>
     <p class="text gallery_text">
-        <%= translations.gallery_text %>
+        <%= __('gallery_text') %>
     </p>
 
 
@@ -213,8 +213,8 @@
 
 <!--working hours-->
 <div class="container workingHours_container">
-    <h4 class="transitional"> <%= translations.our_working_hours%></h4>
-    <h1 class="heading"> <%= translations.working_hours%></h1>
+    <h4 class="transitional"> <%= __('our_working_hours') %></h4>
+    <h1 class="heading"> <%= __('working_hours') %></h1>
     <div class="divider"></div>
 
     <div class="workingHours_grid_container">
@@ -223,7 +223,7 @@
             <table class="working_hours__table">
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.monday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('monday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td>
@@ -235,7 +235,7 @@
                 </tr>
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.tuesday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('tuesday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td>
@@ -248,7 +248,7 @@
 
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.wednesday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('wednesday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td>
@@ -261,7 +261,7 @@
 
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.thursday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('thursday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td>
@@ -274,7 +274,7 @@
 
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.friday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('friday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td>
@@ -287,21 +287,21 @@
 
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.saturday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('saturday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td colspan="2">
-                        <h4 class="working_hours__time weekend"> <%= translations.saturday_time %></h4>
+                        <h4 class="working_hours__time weekend"> <%= __('saturday_time') %></h4>
                     </td>
                 </tr>
 
                 <tr>
                     <td class="working_hours__day-container">
-                        <h4 class="working_hours__day__heading"> <%= translations.sunday%></h4>
+                        <h4 class="working_hours__day__heading"> <%= __('sunday') %></h4>
                         <div class="divider3"></div>
                     </td>
                     <td colspan="2">
-                        <h4 class="working_hours__time weekend"> <%= translations.sunday_time %></h4>
+                        <h4 class="working_hours__time weekend"> <%= __('sunday_time') %></h4>
                     </td>
                 </tr>
             </table>

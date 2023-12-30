@@ -66,7 +66,7 @@ router.post('/schedule-event', async (req, res) => {
             clientEmail,
             clientAdditionalInfo,
             selectedServices,
-            calendarId
+            calendarId,
         );
 
         res.status(200).json({
@@ -74,8 +74,13 @@ router.post('/schedule-event', async (req, res) => {
             scheduledEvent,
         });
     } catch (error) {
-        // Handle errors and send an appropriate response
-        console.error('Error scheduling event2:', error);
+
+        if (error.message === '409') {
+            // There is a conflict, send a 409 response
+            return res.status(409).json({error: 'Event conflicts with an existing event'});
+        }
+
+        console.error('Error scheduling event:', error);
         res.status(500).json({error: 'Internal Server Error'});
     }
 });

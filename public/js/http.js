@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 class http {
 
-    static async request(method, endpoint, body = null) {
+    static async request(method, endpoint, body = null, errorHandler = null) {
         let statusCode = 0;
         try {
             const response = await fetch('/api/' + endpoint, {
@@ -25,7 +25,11 @@ class http {
 
             // Check for error in the response (you might need to adjust this logic based on your API)
             if (!response.ok) {
-                throw new Error(data);
+                if(errorHandler) {
+                    errorHandler({statusCode, data});
+                } else {
+                    throw new Error(data);
+                }
             }
 
             return data;
@@ -39,8 +43,8 @@ class http {
         return this.request('GET', endpoint);
     }
 
-    static async post(endpoint, body) {
-        return this.request('POST', endpoint, body);
+    static async post(endpoint, body, errorHandler=null) {
+        return this.request('POST', endpoint, body, errorHandler);
     }
 
     static async put(endpoint, body) {

@@ -1,5 +1,164 @@
 <div id="app">
 
+    <div class="booking_container">
+        <div class="services_selection" v-if="showFirstPart">
+            <div class="first_part">
+                <div class="blockTest">
+                    <h2>Category</h2>
+
+                    <div class="category_selection">
+                        <label for="categorySelect">Select a category:</label>
+                        <select id="categorySelect" v-model="selectedCategory" @change="loadAndDisplayServices">
+                            <option v-for="category in categories" :key="category.category_id"
+                                    :value="category.category_id">
+                                {{ category.name }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div id="serviceCheckboxes">
+                    <h2><%= __('services') %></h2>
+                    <label v-for="service in services" :key="service.service_id">
+                        <li>
+                            <input
+                                    type="checkbox"
+                                    :checked="checkedState[service.service_id]"
+                                    @change="toggleServiceSelection(service, allServices)"
+                            >
+                            {{ service.name }}<br>
+                            <span class="duration">
+                                <%= __('duration') %>: {{ formattedTIme(service.duration_minutes) }}</span>
+                        </li>
+                    </label>
+                </div>
+            </div>
+
+            <br>
+        </div>
+        <div id="second-part" v-if="showSecondPart">
+
+            <div v-if="workers.length">
+                <p>Chose worker: <!--{{ workers }}--></p>
+            </div>
+            <div v-else>
+                No workers found
+            </div>
+
+            <select v-model="selectedWorker" @change="handleSelectedWorkerChange">
+                <option v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker.name }}
+                </option>
+            </select>
+
+
+            <label for="selected-date">Select Date:</label>
+            <input v-model="selectedDate" type="date" id="selected-date" @change="handleDateChange">
+        </div>
+
+        <!--TimeTable-->
+
+        <div v-if="showTimeTable">
+            <table>
+                <thead>
+                <tr>
+                    <th></th>
+                    <th v-for="date in uniqueDates">{{ date }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="time in uniqueTimes" :key="time">
+                    <td>{{ time }}</td>
+                    <td
+                            v-for="date in uniqueDates"
+                            :key="date"
+                            @mouseover="handleSlotMouseOver(time, date)"
+                            @click="handleSlotClick(time, date, slot)"
+                            :class="{'unavailable': !getSlot(time, date).isAvailable, 'highlighted-slot': isSlotHighlighted(time, date)}"
+                    >
+
+                        <div v-if="getSlot(time, date)">
+                            {{ getSlot(time, date).isAvailable ? '' : '' }}
+                        </div>
+                        <div v-else>
+                            No slot available
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="final_part" v-if="showClientForm">
+            <div class="client_info">
+                <div class="final_info time_info">
+                    <h3>Selected time</h3>
+                    <p>{{ bookedDateTime }}</p>
+                </div>
+
+                <div class="final_info salon_info">
+                    <h4>Salon</h4>
+                    <div class="salon_info">
+                        <p>Explorer HAIR STUDIO</p>
+                        <p>Kai 1,Explorer ärimaja</p>
+                    </div>
+                </div>
+
+                <div class="final_info worker_info">
+                    <h4>Worker</h4>
+                    <p v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker.name }}</p>
+                </div>
+                <div class="final_info selectedServices_info">
+                    <h3>Selected services</h3>
+                    <p>{{formattedSelectedServices(selectedServices)}}</p>
+                </div>
+                <div class="final_info totalPrice_info">
+                    <h4>Price</h4>
+                    <p>{{ totalPrice }}€</p>
+                </div>
+            </div>
+
+            <div class="client_form">
+                <h2>Client Information Form</h2>
+
+                <form class="client-form">
+                    <div class="form-group">
+                        <label for="clientName">Name:</label>
+                        <input v-model="clientData.clientName" type="text" id="clientName" name="clientName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientTel">Telephone Number:</label>
+                        <input v-model="clientData.clientTel" type="tel" id="clientTel" name="clientTel" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientEmail">Email:</label>
+                        <input v-model="clientData.clientEmail" type="email" id="clientEmail" name="clientEmail"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientAdditionalInfo">Additional Info:</label>
+                        <input v-model="clientData.clientAdditionalInfo" type="text" id="clientAdditionalInfo"
+                               name="clientAdditionalInfo">
+                    </div>
+
+                    <div class="form-group">
+                        <button id="send_user_data" type="button" @click="submitClientData">Send User Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="info_about_booking">
+            <p v-if="selectedServices" id="selected-services">{{formattedSelectedServices(selectedServices)}}</p>
+            <p id="duration">{{ formattedTIme(totalDuration) }}</p>
+            <button class="button_booking_container" id="cancelButton" type="button" @click="cancelBooking">Cancel
+            </button>
+            <button class="button_booking_container" id="submitButton" type="button" @click="fetchWorkers"
+                    :disabled="isSubmitDisabled">Submit
+            </button>
+
+        </div>
+    </div>
+
 </div>
 
 
@@ -23,10 +182,8 @@
             const selectedEnd = ref(null);
             const clickedDate = ref(null);
             const bookedDateTime = ref(null);
-
             const startDateTime = ref(null);
             const endDateTime = ref(null);
-
             const showFirstPart = ref(true)
             const showSecondPart = ref(false)
             const showTimeTable = ref(false)
@@ -39,21 +196,14 @@
                 clientEmail: '',
                 clientAdditionalInfo: '',
             });
-
             const clientId = ref(null);
             const orderId = ref(null);
-
-
-            // Method to handle form submission
             const submitClientData = async (event, date) => {
                 event.preventDefault(); // Prevent the default form submission behavior
                 const {clientName, clientTel, clientEmail, clientAdditionalInfo} = clientData.value;
 
                 const start = selectedStart.value;
                 const end = selectedEnd.value;
-
-                date = selectedDate.value;
-                //console.log("DATE", selectedDate.value);
 
                 try {
                     // Send client data
@@ -78,7 +228,6 @@
                 }
             };
 
-            // Async function to send the client id into appointments table
             async function sendOrder(clientID, totalPrice) {
                 const clientId = clientID.clientId;
 
@@ -102,7 +251,6 @@
                 }
             }
 
-            //send selected services to appointment_services table where appointment_services.appointment_id = appointments.appointment_id
             async function sendOrderServices(orderId, selectedServices) {
                 console.log("new:orderId", orderId.value)
                 //const appointment_id = orderId.value;
@@ -129,7 +277,6 @@
                 }
             }
 
-            // Async function to send the client data
             async function sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo) {
                 try {
                     console.log("clientAdditionalInfo", clientAdditionalInfo);
@@ -162,8 +309,8 @@
                     console.log("selectedDate", clickedDate.value)
                     const selectedDateString = typeof clickedDate === 'string' ? clickedDate : clickedDate.value || luxon.DateTime.local().toISODate();
 
-                  //  startDateTime.value = "2023-12-30T09:00";
-                  //  endDateTime.value = "2023-12-30T10:00";
+                    //  startDateTime.value = "2023-12-30T09:00";
+                    //  endDateTime.value = "2023-12-30T10:00";
                     endDateTime.value = selectedDateString + "T" + end;
                     startDateTime.value = selectedDateString + "T" + start;
 
@@ -179,6 +326,16 @@
                         clientAdditionalInfo,
                         selectedServices: selectedServices.value,
                         selectedWorker: selectedWorker.value,
+                    }, function (error) {
+
+                        // Check if the error is due to a conflict
+                        if (error.statusCode === 409) {
+                            // Show a custom error message
+                            return showError('Error', 'The selected time is not available. Please choose a different time.');
+                        }
+
+                        // Re-throw error to be handled by the catch block
+                        throw error
                     });
 
                     if (scheduleResponse) {
@@ -188,11 +345,27 @@
                         // Handle error here, you may throw an error or show an error message
                     }
                 } catch (error) {
-                    console.error('Error scheduling event4:', error);
-                    // Handle error here, you may throw an error or show an error message
+
+                    debugger
+                    console.log("error", error)
+                    return showError('Error', error);
+
                 }
             }
 
+            const showError = (title, body) => {
+                // eslint-disable-next-line no-undef
+                const modalHandler = new bootstrap.Modal(document.getElementById('error-modal'), {});
+
+                // eslint-disable-next-line no-undef
+                document.querySelector('#error-modal-title').textContent = title;
+
+                // eslint-disable-next-line no-undef
+                document.querySelector('#error-modal-body').innerHTML = body;
+
+                // Show modal
+                modalHandler.show();
+            }
             const loadAndDisplayServices = async () => {
                 try {
 
@@ -203,7 +376,6 @@
                     console.error('Error fetching services:', error);
                 }
             };
-
             const getCategories = async () => {
                 try {
                     const response = await axios.get('/category');
@@ -213,7 +385,6 @@
                     console.error('Error fetching categories:', error);
                 }
             };
-
             const toggleServiceSelection = (service) => {
 
                 const serviceToToggle = allServices.value.find(s => s.service_id === service.service_id)
@@ -230,20 +401,17 @@
                     checkedState.value[service.service_id] = true;
                 }
             };
-
             const totalDuration = computed(() => {
                 return selectedServices.value.reduce((total, service) => {
                     return total + service.duration_minutes
                 }, 0)
             });
-
             const totalPrice = computed(() => {
                 return selectedServices.value.reduce((total, service) => {
                     console.log("price? ", total + service.price);
                     return total + service.price
                 }, 0)
             });
-
             const formattedTIme = (durationInMinutes) => {
                 const hours = Math.floor(durationInMinutes / 60);
                 const minutes = durationInMinutes % 60;
@@ -251,7 +419,6 @@
                 // Format the duration as per your requirement
                 return `${hours}.${minutes}h`;
             };
-
             const formattedSelectedServices = (selectedServices = []) => {
 
                 if (selectedServices.length === 0) {
@@ -261,7 +428,6 @@
                 return selectedServices.map(service => service.name).join(', ')
 
             }
-
             const isSubmitDisabled = computed(() => {
                 return selectedServices.value.length === 0;
             });
@@ -289,13 +455,10 @@
                 fetchSlots(selectedDate.value);
                 showTimeTable.value = true
             };
-
             const handleDateChange = () => {
                 fetchSlots(selectedDate.value);
                 console.log("date handled", selectedDate.value)
             };
-
-
             const fetchSlots = async (date) => {
                 selectedDate.value = date || luxon.DateTime.local().toISODate();
                 //get total duration of selected services
@@ -337,28 +500,22 @@
                     // Error modal is handled within the http utility
                 }
             };
-
             const uniqueDates = computed(() => {
 
                 return [...new Set(slots.value.map(s => s.slotDate))];
             });
-
             const slotsOnDate = computed(() => {
                 return slots.value.filter(s => {
                     return s.slotDate === selectedDate.value;
                 });
             });
-
             const uniqueTimes = computed(() => {
                 const times = slots.value.map(s => s.startTimeFormatted);
                 return [...new Set(times)];
             })
-
             const getSlot = (time, date) => {
                 return slots.value.find(slot => slot.startTimeFormatted === time && slot.slotDate === date);
             };
-
-
             const handleSlotMouseOver = (time, currentDate, totalSlots) => {
                 // const totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
 
@@ -401,8 +558,6 @@
 
                 }
             };
-
-            // Function to check if there are enough consecutive slots
             const checkConsecutiveSlots = (currentIndex, totalSlots) => {
                 totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
 
@@ -428,17 +583,13 @@
 
                 return {allAvailable, highlighted, end};
             };
-
             const isSlotHighlighted = (time, date) => {
                 const slot = getSlot(time, date);
                 return slot && highlightedSlots.value.includes(slot);
             };
-
-
             const isSlotAvailable = (slot) => {
                 return slot.isAvailable;
             };
-
             const handleSlotClick = (time, date, totalSlots) => {
                 const slot = getSlot(time, date);
 
@@ -465,8 +616,6 @@
                     console.log('Slot not found');
                 }
             };
-
-
             const cancelBooking = () => {
                 // Reset all selected data and go back to the initial state
                 selectedCategory.value = '';
@@ -487,9 +636,6 @@
                 showTimeTable.value = false;
                 showClientForm.value = false;
             };
-            const isSubmitRollback = computed(() => {
-                return selectedServices.value.length === 0 && !showFirstPart;
-            });
 
             onMounted(async () => {
 
@@ -545,158 +691,6 @@
             return {};
         },
         methods: {},
-        template: `
-            <div class="booking_container">
-                <div class="services_selection" v-if="showFirstPart">
-                    <div class="first_part">
-                        <div class="blockTest">
-                            <h2>Category</h2>
 
-                            <div class="category_selection">
-                                <label for="categorySelect">Select a category:</label>
-                                <select id="categorySelect" v-model="selectedCategory" @change="loadAndDisplayServices">
-                                  <option v-for="category in categories" :key="category.category_id" :value="category.category_id">
-                                    {{ category.name }}
-                                  </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="serviceCheckboxes">
-                            <h2>Service name</h2>
-
-                            <label v-for="service in services" :key="service.service_id">
-                                <li>
-                                    <input
-                                        type="checkbox"
-                                        :checked="checkedState[service.service_id]"
-                                        @change="toggleServiceSelection(service, allServices)"
-                                    >
-                                    {{ service.name }}<br>
-                                    <span class="duration">Duration: {{ formattedTIme(service.duration_minutes) }}</span>
-                                </li>
-                            </label>
-                        </div>
-                    </div>
-
-                    <br>
-                </div>
-                <div id="second-part" v-if="showSecondPart">
-
-                    <div v-if="workers.length">
-                        <p>Chose worker: <!--{{ workers }}--></p>
-                    </div>
-                    <div v-else>
-                        No workers found
-                    </div>
-
-                    <select v-model="selectedWorker" @change="handleSelectedWorkerChange">
-                        <option v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker.name }}</option>
-                    </select>
-
-
-                    <label for="selected-date">Select Date:</label>
-                    <input  v-model="selectedDate" type="date" id="selected-date" @change="handleDateChange">
-                </div>
-
-        <!--TimeTable-->
-
-            <div v-if="showTimeTable">
-             <table>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th v-for="date in uniqueDates">{{ date }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="time in uniqueTimes" :key="time">
-                    <td>{{ time }}</td>
-                        <td
-                            v-for="date in uniqueDates"
-                            :key="date"
-                            @mouseover="handleSlotMouseOver(time, date)"
-                            @click="handleSlotClick(time, date, slot)"
-                            :class="{'unavailable': !getSlot(time, date).isAvailable, 'highlighted-slot': isSlotHighlighted(time, date)}"
-                        >
-
-                      <div v-if="getSlot(time, date)">
-                        {{ getSlot(time, date).isAvailable ? '' : '' }}
-                      </div>
-                      <div v-else>
-                        No slot available
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-                <div class="final_part" v-if="showClientForm">
-                    <div class="client_info">
-                        <div class="final_info time_info">
-                            <h3>Selected time</h3>
-                            <p>{{ bookedDateTime }}</p>
-                        </div>
-
-                        <div class="final_info salon_info">
-                            <h4>Salon</h4>
-                            <div class="salon_info">
-                                <p>Explorer HAIR STUDIO</p>
-                                <p>Kai 1,Explorer ärimaja</p>
-                            </div>
-                        </div>
-
-                        <div class="final_info worker_info">
-                            <h4>Worker</h4>
-                            <p v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker.name }}</p>
-                        </div>
-                        <div class="final_info selectedServices_info">
-                            <h3>Selected services</h3>
-                            <p>{{formattedSelectedServices(selectedServices)}}</p>
-                        </div>
-                        <div class="final_info totalPrice_info">
-                            <h4>Price</h4>
-                            <p>{{ totalPrice }}€</p>
-                        </div>
-                    </div>
-
-                    <div class="client_form" >
-                        <h2>Client Information Form</h2>
-
-                        <form class="client-form">
-                          <div class="form-group">
-                            <label for="clientName">Name:</label>
-                            <input v-model="clientData.clientName" type="text" id="clientName" name="clientName" required>
-                          </div>
-
-                          <div class="form-group">
-                            <label for="clientTel">Telephone Number:</label>
-                            <input v-model="clientData.clientTel" type="tel" id="clientTel" name="clientTel" required>
-                          </div>
-
-                          <div class="form-group">
-                            <label for="clientEmail">Email:</label>
-                            <input v-model="clientData.clientEmail" type="email" id="clientEmail" name="clientEmail" required>
-                          </div>
-
-                          <div class="form-group">
-                            <label for="clientAdditionalInfo">Additional Info:</label>
-                            <input v-model="clientData.clientAdditionalInfo" type="text" id="clientAdditionalInfo" name="clientAdditionalInfo">
-                          </div>
-
-                          <div class="form-group">
-                            <button id="send_user_data" type="button" @click="submitClientData">Send User Data</button>
-                          </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="info_about_booking">
-                    <p v-if="selectedServices" id="selected-services">{{formattedSelectedServices(selectedServices)}}</p>
-                    <p id="duration">{{ formattedTIme(totalDuration) }}</p>
-                    <button class="button_booking_container" id="cancelButton" type="button" @click="cancelBooking">Cancel</button>
-                    <button class="button_booking_container" id="submitButton" type="button" @click="fetchWorkers" :disabled="isSubmitDisabled">Submit</button>
-
-                </div>
-            </div>
-        `,
     }).mount('#app');
 </script>
