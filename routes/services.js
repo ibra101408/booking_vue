@@ -19,9 +19,30 @@ router.get('/', async (req, res) => {
 
 });
 
-router.get('/services', async (req, res) => {
+router.get('/category', async (req, res) => {
     try {
-        const rows = await db('SELECT * FROM service');
+        const sql = 'SELECT category_id, name FROM category LIMIT 3';
+        const rows = await db(sql);
+
+        const category = rows.map(row => ({
+            category_id: row.category_id,
+            name: row.name
+        }));
+
+        res.json(category);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({error: 'Failed'});
+    }
+});
+
+router.get('/services', async (req, res) => {
+
+    // const local = req.query.lang || 'et';
+    const currentLocale = res.locals.currentLocale;
+
+    try {
+        const rows = await db(`SELECT service_id, ${currentLocale} AS name, duration_minutes, price FROM service`);
         const services = rows.map(row => ({
             service_id: row.service_id,
             name: row.name,
@@ -36,9 +57,14 @@ router.get('/services', async (req, res) => {
 });
 
 router.get('/services/:categoryId', async (req, res) => {
+
+    //const local = req.query.lang || 'et';
+    const currentLocale = res.locals.currentLocale || 'et';
+
     try {
         const categoryId = req.params.categoryId;
-        const sql = 'SELECT * FROM service WHERE category_id = ?';
+        const sql = `SELECT service_id, ${currentLocale} AS name, duration_minutes, price FROM service WHERE category_id = ?`;
+        //const sql = `SELECT * FROM service WHERE category_id = ?`;
         const rows = await db(sql, [categoryId]);
 
         const services = rows.map(row => ({
@@ -55,13 +81,44 @@ router.get('/services/:categoryId', async (req, res) => {
     }
 });
 
+router.post('/workers', async (req, res) => {
+    try {
+        const selectedServices = req.body;
+
+        if (!selectedServices || selectedServices.length === 0) {
+            return res.status(400).json({ error: 'No services selected' });
+        }
+
+        const placeholders = selectedServices.map(() => '?').join(', ');
+        const sql = `
+            SELECT DISTINCT w.*
+                FROM worker w
+                        JOIN worker_services ws ON w.worker_id = ws.worker_id
+                WHERE ws.service_id IN (${placeholders})
+                GROUP BY w.worker_id
+                HAVING COUNT(DISTINCT ws.service_id) = ${selectedServices.length}
+        `;
+
+        const rows = await db(sql, selectedServices);
+        const workers = rows.map(row => ({
+            worker_id: row.worker_id,
+            name: row.name,
+        }));
+
+        res.json(workers);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Failed' });
+    }
+});
+
 router.post('/clients', async (req, res) => {
     try {
         const { clientName, clientTel, clientEmail } = req.body;
         const sql = 'INSERT INTO clients (clientName, clientTel, clientEmail) VALUES (?, ?, ?)';
         const params = [clientName, clientTel, clientEmail];
         const result = await db(sql, params);
-        //console.log('client in back',result);
+
         res.json({ clientId: result.insertId });
     } catch (err) {
         console.error('dbClient',err.message);
@@ -70,42 +127,46 @@ router.post('/clients', async (req, res) => {
 });
 
 // post client id into appointments table
-router.post('/appointments', async (req, res) => {
+router.post('/order', async (req, res) => {
     try {
-        const { clientId } = req.body;
-        const sql = 'INSERT INTO appointments (client_id) VALUES (?)';
+        const { clientId, totalPrice } = req.body;
+        console.log('totalPrice in order', totalPrice);
+        const sql = 'INSERT INTO `order` (client_id, total_price, createdAt) VALUES (?, ?, NOW())';
 
-        const params = [clientId];
+        const params = [clientId, totalPrice];
         const result = await db(sql, params);
 
-        res.json({ appointmentId: result.insertId });
+        console.log('result in order', result.insertId);
+        res.json({ orderId: result.insertId });
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Failed' });
     }
 });
 
-//send selected services ids to appointment_services table where appointment_services.appointment_id = appointments.appointment_id
-router.post('/appointment_services', async (req, res) => {
+router.post('/order_services', async (req, res) => {
     try {
-        const { appointment_id, selectedServices } = req.body;
+        const { orderId, selectedServices } = req.body;
         let serviceIds = [];
+        const orderIdInt = parseInt(orderId.orderId); // Convert orderId to an integer
 
         // Check if _value is defined and is an array
         if (selectedServices && Array.isArray(selectedServices._value)) {
             for (let service of selectedServices._value) {
                 serviceIds.push(service.service_id);
+
                 console.log('serviceIDS ', serviceIds);
             }
         } else {
             console.error('_value is not an array or is undefined');
         }
 
-        console.log('appointmentId BACK ', appointment_id);
-        const sql = 'INSERT INTO appointment_services (appointment_id, service_id) VALUES ?';
-        const params = serviceIds.map(serviceId => [appointment_id, serviceId]);
-        const result = await db(sql, [params]);
-        console.log('result', result);
+
+        const sql = 'INSERT INTO order_services (order_id, service_id) VALUES ?';
+        const params = serviceIds.map(serviceId => [orderIdInt, serviceId]);
+        await db(sql, [params]);
+
+
         res.json({ message: 'success' });
     } catch (err) {
         console.error(err.message);

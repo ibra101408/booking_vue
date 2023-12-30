@@ -1039,9 +1039,215 @@ th {
 
 
 
-.unavailable-slot{
-    background: #ff0000;
+.booking_container{
+    width: 50%;
+    background-color: #fde0d1;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px auto;
 }
-.highlighted-slot{
-    background: #59b84e;
+.services_selection{
+   /* display: flex;
+    flex-direction: column;
+    gap: 10px;*/
+}
+
+/* Styling for the first part of the booking form */
+.first_part {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+/* Styling for the category select */
+#categorySelect {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* Styling for service checkboxes */
+#serviceCheckboxes {
+    margin-bottom: 10px;
+    width: 65%;
+}
+
+/* Styling for the selected services paragraph */
+#selected-services {
+    margin-bottom: 10px;
+}
+
+/* Styling for the submit button */
+.button_booking_container{
+    background: #bb6666;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#submitButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#submitButton:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+.category_selection{
+    display: flex;
+    flex-direction: column;
+    width: 140px;
+}
+
+/* Styling for the second part of the booking form */
+#second-part {
+    margin-top: 20px;
+}
+
+/* Styling for workers select */
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* Styling for the selected date input */
+#selected-date {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.final_part{
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.final_info{
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 14px;
+}
+
+.final_info p {
+    text-align: center;
+}
+
+.salon_info p {
+    margin: 0;
+}
+
+.client_form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+/* Style the table header */
+th {
+    background-color: #f2f2f2;
+    padding: 10px;
+    text-align: center !important;
+}
+
+/* Style the table cells :first-child*/
+td {
+    border: 1px solid #3d3d3d !important;
+    text-align: center;
+}
+
+tr{
+    border: 1px solid #3d3d3d !important;
+}
+/* Style for unavailable slots */
+.unavailable {
+    background-color: #ff9999; /* Light red */
+}
+
+/* Style for highlighted slots */
+.highlighted-slot {
+    background-color: #99ff99; /* Light green */
+}
+
+
+#serviceCheckboxes li {
+    list-style-type: none;
+    padding: 0;
+}
+
+#serviceCheckboxes li {
+    margin-bottom: 8px;
+}
+
+#serviceCheckboxes label {
+    display: block;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#serviceCheckboxes input {
+    margin-right: 8px;
+}
+
+#serviceCheckboxes label:hover {
+    background-color: #f0f0f0;
+}
+
+
+.client-form {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 3px;
+    margin-bottom: 10px;
+}
+
+#send_user_data {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#send_user_data:hover {
+    background-color: #45a049;
 }

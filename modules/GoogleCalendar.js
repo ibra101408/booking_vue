@@ -1,5 +1,6 @@
-const { google } = require('googleapis');
-const { DateTime } = require('luxon');
+const {google} = require('googleapis');
+const {DateTime} = require('luxon');
+//const timers = require('timers');
 
 /**
  * GoogleCalendar class for interacting with Google Calendar API.
@@ -22,10 +23,10 @@ class GoogleCalendar {
      */
     constructor(clientId, clientSecret, redirectUri, apiKey, refreshToken, timezone = 'Europe/Tallinn') {
         this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri, apiKey);
-        this.oauth2Client.setCredentials({ refresh_token: refreshToken });
+        this.oauth2Client.setCredentials({refresh_token: refreshToken});
         this.oauth2Client.forceRefreshOnFailure = true;
 
-        this.calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+        this.calendar = google.calendar({version: 'v3', auth: this.oauth2Client});
         this.timezone = timezone;
     }
 
@@ -50,10 +51,107 @@ class GoogleCalendar {
      * @throws {Error} If the calendar ID is invalid.
      */
     validateCalendarId(calendarId) {
+        console.log('calendarId', calendarId);
         if (!calendarId.match(GoogleCalendar.CALENDAR_ID_REGEX)) {
             throw new Error('Invalid calendar ID format');
         }
     }
+
+    /**
+     * Schedules an event in the specified calendar.
+     *
+     * @param {string} start - The start time of the event.
+     * @param {string} end - The end time of the event.
+     * //@param {string} clientId - The client ID.
+     * @param {string} clientName - The client's name.
+     * @param {string} clientTel - The client's telephone number.
+     * @param {string} clientEmail - The client's email address.
+     * @param {string} clientAdditionalInfo - The client's additional info.
+     * @param {string} calendarId - The ID of the calendar in which to schedule the event.
+     * @param {array} selectedServices - The array of selected services.
+     * @returns {Promise<Object>} A promise that resolves to the scheduled event data.
+     * @throws {Error} If there's an error in scheduling the event.
+     */
+
+
+    async scheduleEvent(start, end, clientName, clientTel, clientEmail,  clientAdditionalInfo, selectedServices, calendarId) {
+        try {
+            // Validate input parameters if necessary
+            const startDateTimeLocal = DateTime.fromISO(start, {zone: this.timezone});
+            const endDateTimeLocal = DateTime.fromISO(end, {zone: this.timezone});
+
+            // Fetch existing events for the specified time range
+            await this.checkEventConflicts(start, end, calendarId);
+
+            // Convert array to a comma-separated string
+            const selectedServicesString = selectedServices.map(service => service.name).join(', ');
+
+            const googleApiResponse = await this.calendar.events.insert({
+                calendarId,
+                auth: this.oauth2Client,
+                requestBody: {
+                    start: {
+                        dateTime: startDateTimeLocal.toUTC().toISO(),
+                        timeZone: this.timezone,
+                    },
+                    end: {
+                        dateTime: endDateTimeLocal.toUTC().toISO(),
+                        timeZone: this.timezone,
+                    },
+                    summary: `Test, ${clientName}, ${clientTel}, ${selectedServicesString}, additional Info: ,${clientAdditionalInfo}`,
+                },
+            });
+
+            return googleApiResponse.data; // Return the scheduled event data
+        } catch (error) {
+            console.error('Error scheduling event1:', error.message);
+            throw new Error('Error scheduling event::');
+        }
+    }
+
+    async checkEventConflicts(start, end, calendarId) {
+        try {
+            // Fetch existing events for the specified time range
+            const existingEvents = await this.fetchEventsForDateRange(start, end, calendarId);
+            console.log('existingEvents', existingEvents);
+            // Check for conflicts
+            if (existingEvents.length > 0) {
+                // There is a conflict, throw an error
+                throw new Error('There is a scheduling conflict. Please choose a different time.');
+            }
+            return true;
+        } catch (error) {
+            console.log('Error: ', start, end);
+            console.error('Error checking event conflicts:', error.message);
+            throw new Error('Error scheduling event2!');
+        }
+    }
+
+    async fetchEventsForDateRange(start, end, calendarId) {
+        this.validateDate(start);
+        this.validateDate(end);
+        this.validateCalendarId(calendarId);
+        const startDateTime = DateTime.fromISO(start).toISO();
+        const endDateTime = DateTime.fromISO(end).toISO();
+
+        try {
+            const response = await this.calendar.events.list({
+                calendarId,
+                timeMin: startDateTime,
+                timeMax: endDateTime,
+                singleEvents: true,
+                orderBy: 'startTime',
+            });
+
+            return response.data.items;
+        } catch (error) {
+            console.error(`Error fetching events: ${error.message}`);
+            console.error('Error details:', error.errors);
+
+            throw new Error('Error fetching eventsss');
+        }
+    }
+
 
     /**
      * Fetches events for a specific date from the specified calendar.
@@ -67,9 +165,10 @@ class GoogleCalendar {
         this.validateDate(date);
         this.validateCalendarId(calendarId);
 
-        const dateWithTz = DateTime.fromISO(date, { zone: this.timezone });
+        const dateWithTz = DateTime.fromISO(date, {zone: this.timezone});
         const startTime = dateWithTz.startOf('day').toISO();
-        const endTime = dateWithTz.endOf('day').toISO();
+        // const endTime = dateWithTz.plus({days: 10}).endOf('day').toISO();
+        const endTime = dateWithTz.plus({day: 10}).endOf('day').toISO();
 
         try {
             const response = await this.calendar.events.list({

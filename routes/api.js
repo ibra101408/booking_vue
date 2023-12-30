@@ -12,9 +12,7 @@ const googleCalendar = new GoogleCalendar(
     process.env.REFRESH_TOKEN,
     process.env.TIMEZONE,
 );
-
 router.get('/timeslots', async (req, res) => {
-
     // Validate that worker ID is specified and is a positive integer
     if (!req.query.worker || !req.query.worker.match(/^[1-9]\d*$/)) {
         res.status(400).send('Bad Request');
@@ -23,17 +21,26 @@ router.get('/timeslots', async (req, res) => {
 
     const selectedDate = req.query.date || DateTime.local().toISODate();
     const selectedWorker = parseInt(req.query.worker);
-    const calendarId = selectedWorker === 1 ? process.env.WORKER1_CALENDAR_ID : process.env.WORKER2_CALENDAR_ID;
+    const calendarId = selectedWorker === 1 ? process.env.WORKER_1_CALENDAR_ID : process.env.WORKER_2_CALENDAR_ID;
 
     try {
-
         const existingEvents = await googleCalendar.fetchEventsForDate(selectedDate, calendarId);
 
-        return res.json(timeslots.createSlotsForDate(
-            selectedDate,
-            existingEvents,
-            parseInt(process.env.START_WORKING_HOUR),
-            parseInt(process.env.END_WORKING_HOUR)));
+        // Create time slots for a range of 10 days
+        const endDate = DateTime.fromISO(selectedDate).plus({ day: 10 }).toISODate();
+        const timeSlots = [];
+
+        for (let currentDate = DateTime.fromISO(selectedDate); currentDate.toISODate() <= endDate; currentDate = currentDate.plus({ day: 1 })) {
+            const slotsForDate = timeslots.createSlotsForDate(
+                currentDate.toISODate(),
+                existingEvents,
+                parseInt(process.env.START_WORKING_HOUR),
+                parseInt(process.env.END_WORKING_HOUR)
+            );
+            timeSlots.push(...slotsForDate);
+        }
+
+        return res.json(timeSlots);
 
     } catch (error) {
         // Print stack trace
@@ -41,6 +48,35 @@ router.get('/timeslots', async (req, res) => {
 
         console.error('Error fetching slots:', error.message);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+
+router.post('/schedule-event', async (req, res) => {
+    const {start, end, clientName, clientTel, clientEmail, selectedServices, selectedWorker, clientAdditionalInfo} = req.body;
+    const calendarId = selectedWorker === 1 ? process.env.WORKER_1_CALENDAR_ID : process.env.WORKER_2_CALENDAR_ID;
+
+    try {
+        // Call the new scheduleEvent method in the GoogleCalendar class
+        const scheduledEvent = await googleCalendar.scheduleEvent(
+            start,
+            end,
+            clientName,
+            clientTel,
+            clientEmail,
+            clientAdditionalInfo,
+            selectedServices,
+            calendarId
+        );
+
+        res.status(200).json({
+            message: 'Event scheduled successfully!',
+            scheduledEvent,
+        });
+    } catch (error) {
+        // Handle errors and send an appropriate response
+        console.error('Error scheduling event2:', error);
+        res.status(500).json({error: 'Internal Server Error'});
     }
 });
 

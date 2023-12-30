@@ -21,27 +21,33 @@
             const selectedEndTime = ref(null)
             const selectedStart = ref(null);
             const selectedEnd = ref(null);
+            const clickedDate = ref(null);
+            const bookedDateTime = ref(null);
 
+            const startDateTime = ref(null);
+            const endDateTime = ref(null);
+
+            const showFirstPart = ref(true)
             const showSecondPart = ref(false)
             const showTimeTable = ref(false)
             const showClientForm = ref(false)
-
             const selectedDate = ref('');
-            const slots = ref('')
+            const slots = ref([])
             const clientData = ref({
                 clientName: '',
                 clientTel: '',
                 clientEmail: '',
+                clientAdditionalInfo: '',
             });
 
             const clientId = ref(null);
-            const appointmentID = ref(null);
+            const orderId = ref(null);
 
 
             // Method to handle form submission
             const submitClientData = async (event, date) => {
                 event.preventDefault(); // Prevent the default form submission behavior
-                const { clientName, clientTel, clientEmail } = clientData.value;
+                const {clientName, clientTel, clientEmail, clientAdditionalInfo} = clientData.value;
 
                 const start = selectedStart.value;
                 const end = selectedEnd.value;
@@ -51,42 +57,45 @@
 
                 try {
                     // Send client data
-                    await sendClientData(clientName, clientTel, clientEmail);
+                    await sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo);
 
                     const clientID = clientId.value;
 
-                    await sendAppointments(clientID);
+                    await sendOrder(clientID, totalPrice);
 
-                    //const appointmentIds = appointmentID.value;
+                    // const orderId = orderId.value;
+                    console.log("order_id...", orderId.value);
 
-                    await sendAppointmentServices(appointmentID, selectedServices);
+                    await sendOrderServices(orderId, selectedServices);
+
                     // Schedule the event after client data is sent
-                    await scheduleEvent(start, end, date, selectedDate, clientName, clientTel, clientEmail, clientID);
+                    console.log("DATE", clickedDate.value);
+                    await scheduleEvent(start, end, clickedDate, selectedDate, clientName, clientTel, clientEmail, clientAdditionalInfo);
 
-                 //   console.log("appointmentId -- ", appointmentId.value);
+                    //   console.log("appointmentId -- ", appointmentId.value);
                 } catch (error) {
                     console.error('Error:', error);
                 }
             };
 
             // Async function to send the client id into appointments table
-            async function sendAppointments(clientID) {
-                //console.log("client point n3", clientID);
+            async function sendOrder(clientID, totalPrice) {
                 const clientId = clientID.clientId;
+
                 try {
-                    const response = await fetch(`/appointments`, {
+                    const response = await fetch(`/order`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
                             clientId,
+                            totalPrice: totalPrice.value
                         }),
                     });
-                    console.log("client point n2 APpointments");
 
                     if (response.ok) {
-                        appointmentID.value = await response.json();
+                        orderId.value = await response.json();
                     }
                 } catch (error) {
                     console.error('Error sending client data:', error);
@@ -94,25 +103,24 @@
             }
 
             //send selected services to appointment_services table where appointment_services.appointment_id = appointments.appointment_id
-            async function sendAppointmentServices(appointmentID, selectedServices) {
-
-                const appointment_id = appointmentID.value.appointmentId;
+            async function sendOrderServices(orderId, selectedServices) {
+                console.log("new:orderId", orderId.value)
+                //const appointment_id = orderId.value;
                 try {
-                    const response = await fetch(`/appointment_services`, {
+                    const response = await fetch(`/order_services`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
                             selectedServices,
-                            appointment_id,
+                            orderId: orderId.value,
                         }),
                     });
-                    //console.log("client point n2 APpointments");
 
                     if (response.ok) {
                         const result = await response.json();
-                        console.log('Client data sent successfully:', result);
+                        console.log('Client data sent successfully545:', result);
                     } else {
                         throw new Error(`${response.status} ${response.statusText}`);
                     }
@@ -122,8 +130,9 @@
             }
 
             // Async function to send the client data
-            async function sendClientData(clientName, clientTel, clientEmail) {
+            async function sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo) {
                 try {
+                    console.log("clientAdditionalInfo", clientAdditionalInfo);
                     const response = await fetch(`/clients`, {
                         method: 'POST',
                         headers: {
@@ -133,6 +142,7 @@
                             clientName,
                             clientTel,
                             clientEmail,
+                            clientAdditionalInfo,
                         }),
                     });
 
@@ -146,50 +156,46 @@
                 }
             }
 
-            // Async function to schedule the event
-            async function scheduleEvent(start, end, date, selectedDate, clientName, clientTel, clientEmail, clientID) {
+            async function scheduleEvent(start, end, clickedDate, selectedDate, clientName, clientTel, clientEmail, clientAdditionalInfo) {
                 try {
 
-                    selectedDate.value = date || luxon.DateTime.local().toISODate();
-                    const startDateTime = date + 'T' + start;
-                    const endDateTime = date + 'T' + end;
+                    console.log("selectedDate", clickedDate.value)
+                    const selectedDateString = typeof clickedDate === 'string' ? clickedDate : clickedDate.value || luxon.DateTime.local().toISODate();
 
-                    const clientId = clientID.clientId;
+                  //  startDateTime.value = "2023-12-30T09:00";
+                  //  endDateTime.value = "2023-12-30T10:00";
+                    endDateTime.value = selectedDateString + "T" + end;
+                    startDateTime.value = selectedDateString + "T" + start;
 
-                    const scheduleResponse = await fetch(`/google/schedule_event`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            start: startDateTime,
-                            end: endDateTime,
-                            clientName,
-                            clientTel,
-                            clientId,
-                            clientID,
-                            clientEmail,
-                            selectedServices: selectedServices.value,
-                            selectedWorker: selectedWorker.value,
-                            //appointmentId,
-                        }),
+                    console.log("startDateTime!", startDateTime.value);
+                    //console.log("selectedServices.value!", selectedServices.value)
+
+                    const scheduleResponse = await http.post('/schedule-event', {
+                        start: startDateTime.value,
+                        end: endDateTime.value,
+                        clientName,
+                        clientTel,
+                        clientEmail,
+                        clientAdditionalInfo,
+                        selectedServices: selectedServices.value,
+                        selectedWorker: selectedWorker.value,
                     });
 
-                    if (scheduleResponse.ok) {
-                        const result = await scheduleResponse.json();
-                        console.log('Event scheduled successfully:', result);
+                    if (scheduleResponse) {
+                        console.log('Event scheduled successfully:', scheduleResponse);
                     } else {
-                        const errorMessage = scheduleResponse;
-                        console.log("Error scheduling event:", errorMessage);
-                        throw new Error(`${scheduleResponse.status} ${scheduleResponse.statusText || errorMessage}`);
+                        console.log('Error scheduling event3:', scheduleResponse);
+                        // Handle error here, you may throw an error or show an error message
                     }
                 } catch (error) {
-                    console.error('Error scheduling event:', error);
+                    console.error('Error scheduling event4:', error);
+                    // Handle error here, you may throw an error or show an error message
                 }
             }
 
             const loadAndDisplayServices = async () => {
                 try {
+
                     const response = await axios.get(`/services/${selectedCategory.value}`);
                     services.value = response.data;
 
@@ -202,6 +208,7 @@
                 try {
                     const response = await axios.get('/category');
                     categories.value = response.data;
+
                 } catch (error) {
                     console.error('Error fetching categories:', error);
                 }
@@ -210,7 +217,6 @@
             const toggleServiceSelection = (service) => {
 
                 const serviceToToggle = allServices.value.find(s => s.service_id === service.service_id)
-               // console.log("toggled, ", serviceToToggle);
 
                 const isSelected = selectedServices.value.some(selectedService => selectedService.service_id === service.service_id)
                 if (isSelected) {
@@ -231,14 +237,30 @@
                 }, 0)
             });
 
-            const formatTime = computed(() => {
-                let minutes = totalDuration.value;
-
-                let hours = Math.floor(minutes / 60)
-                let mins = minutes % 60
-
-                return hours + '.' + mins.toString().padStart(2, '0') + 'h'
+            const totalPrice = computed(() => {
+                return selectedServices.value.reduce((total, service) => {
+                    console.log("price? ", total + service.price);
+                    return total + service.price
+                }, 0)
             });
+
+            const formattedTIme = (durationInMinutes) => {
+                const hours = Math.floor(durationInMinutes / 60);
+                const minutes = durationInMinutes % 60;
+
+                // Format the duration as per your requirement
+                return `${hours}.${minutes}h`;
+            };
+
+            const formattedSelectedServices = (selectedServices = []) => {
+
+                if (selectedServices.length === 0) {
+                    console.log("no services selected");
+                    return 'nono';
+                }
+                return selectedServices.map(service => service.name).join(', ')
+
+            }
 
             const isSubmitDisabled = computed(() => {
                 return selectedServices.value.length === 0;
@@ -258,7 +280,7 @@
                     throw new Error(`Request failed with status ${response.status}`);
                 }
                 workers.value = await response.json()
-
+                showFirstPart.value = false
                 showSecondPart.value = true
             }
 
@@ -273,7 +295,7 @@
                 console.log("date handled", selectedDate.value)
             };
 
-            // Fetch slots function
+
             const fetchSlots = async (date) => {
                 selectedDate.value = date || luxon.DateTime.local().toISODate();
                 //get total duration of selected services
@@ -282,12 +304,33 @@
 
                 try {
                     const responseData = await http.get(`/timeslots?worker=${selectedWorker.value}&date=${selectedDate.value}`);
+                    const currentDate = luxon.DateTime.fromISO(selectedDate.value);
+                    const endDate = currentDate.plus({day: 6});
+                    console.log("responseData", currentDate, endDate);
 
-                    slots.value = responseData.map(slot => ({
-                        startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
-                        endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
-                        isAvailable: slot.isAvailable,
-                    }));
+                    slots.value = responseData
+                        .map(slot => {
+                            //console.log("Slot start:", slot.start); // Add this line for additional logging
+                            const slotDate = luxon.DateTime.fromISO(slot.start).toISODate();
+                            console.log("slotDate", slotDate)
+                            return {
+                                start: slot.start, // Add this line for additional logging
+                                end: slot.end, // Add this line for additional logging
+                                slotDate: slotDate, // Add this line for additional logging
+                                startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
+                                endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
+                                isAvailable: slot.isAvailable,
+                            };
+                        })
+                        .filter(slot => {
+                            const slotDate = slot.slotDate;
+                            const currentDateString = currentDate.toISODate();
+                            const endDateString = endDate.toISODate();
+
+                            return currentDateString <= slotDate && slotDate <= endDateString;
+                        });
+
+                    console.log("slot", slots)
 
                 } catch (error) {
                     console.error('Error fetching available slots:', error);
@@ -295,10 +338,73 @@
                 }
             };
 
-            const handleSlotMouseOver = (slot) => {
-                const totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
+            const uniqueDates = computed(() => {
 
-                const currentIndex = slots.value.findIndex((s) => s.startTimeFormatted === slot.startTimeFormatted);
+                return [...new Set(slots.value.map(s => s.slotDate))];
+            });
+
+            const slotsOnDate = computed(() => {
+                return slots.value.filter(s => {
+                    return s.slotDate === selectedDate.value;
+                });
+            });
+
+            const uniqueTimes = computed(() => {
+                const times = slots.value.map(s => s.startTimeFormatted);
+                return [...new Set(times)];
+            })
+
+            const getSlot = (time, date) => {
+                return slots.value.find(slot => slot.startTimeFormatted === time && slot.slotDate === date);
+            };
+
+
+            const handleSlotMouseOver = (time, currentDate, totalSlots) => {
+                // const totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
+
+                const currentSlots = slots.value.filter(
+                    slot => slot.startTimeFormatted === time && slot.slotDate === currentDate
+                );
+
+                if (currentSlots.length === 0) {
+                    console.log('No slots available for the selected time and date.');
+                    return;
+                }
+
+                const currentIndex = slots.value.findIndex(
+                    s => s.startTimeFormatted === time && s.slotDate === currentDate
+                );
+
+                const {allAvailable, highlighted, end} = checkConsecutiveSlots(currentIndex, totalSlots);
+
+                if (allAvailable) {
+                    highlightedSlots.value = highlighted;
+
+                    // Highlight slots in the UI
+                    slots.value.forEach(slot => {
+                        if (slot) {
+                            slot.highlighted = highlighted.includes(slot);
+                        }
+                    });
+
+                    // Store the end time
+                    selectedEndTime.value = end;
+                } else {
+                    highlightedSlots.value = [];
+
+                    slots.value.forEach(slot => {
+                        if (slot) {
+                            slot.highlighted = false;
+                        }
+                    });
+                    console.log('Not available');
+
+                }
+            };
+
+            // Function to check if there are enough consecutive slots
+            const checkConsecutiveSlots = (currentIndex, totalSlots) => {
+                totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
 
                 let allAvailable = true;
                 const highlighted = [];
@@ -314,49 +420,76 @@
                         }
 
                         end = slots.value[indexToCheck].endTimeFormatted;
-
                     } else {
                         allAvailable = false; // Slot index out of bounds
                         break;
                     }
                 }
 
-                if (allAvailable) {
-                    highlightedSlots.value = highlighted;
-
-                    //store the end time
-                    selectedEndTime.value = end;
-                   // console.log('All consecutive slots are available');
-                } else {
-                    highlightedSlots.value = [];
-                    console.log('Not available');
-                }
+                return {allAvailable, highlighted, end};
             };
+
+            const isSlotHighlighted = (time, date) => {
+                const slot = getSlot(time, date);
+                return slot && highlightedSlots.value.includes(slot);
+            };
+
 
             const isSlotAvailable = (slot) => {
                 return slot.isAvailable;
             };
 
+            const handleSlotClick = (time, date, totalSlots) => {
+                const slot = getSlot(time, date);
 
-            const handleSlotClick = (slot) => {
-                if (isSlotAvailable(slot)) {
+                if (slot) {
+                    const currentIndex = slots.value.findIndex(s => s.startTimeFormatted === time && s.slotDate === date);
 
-                    slot.value = {
-                        start: slot.startTimeFormatted,
-                        end: selectedEndTime.value,
-                    };
-                    selectedStart.value = slot.value.start;
-                    selectedEnd.value = slot.value.end;
-                   // console.log("in hancle click on slot: ", slot.value)
+                    const {allAvailable, end} = checkConsecutiveSlots(currentIndex, totalSlots);
 
-                    showClientForm.value = true
-                    showTimeTable.value = false
-                    // Process the click only if the slot is available
-                    console.log('Clicked on time:', slot.startTimeFormatted);
+                    if (allAvailable && isSlotAvailable(slot)) {
+                        selectedStart.value = slot.startTimeFormatted;
+                        selectedEnd.value = end || selectedEndTime.value;
+                        showClientForm.value = true;
+                        showTimeTable.value = false;
+                        showSecondPart.value = false;
+                        console.log('Clicked on time:', slot.startTimeFormatted);
+                        clickedDate.value = slot.slotDate;
+                        bookedDateTime.value = slot.slotDate + " at " + slot.startTimeFormatted;
+                        console.log("clickedDate", startDateTime.value);
+
+                    } else {
+                        console.log('Slot is not available or there are not enough consecutive slots');
+                    }
                 } else {
-                    console.log('Slot is not available');
+                    console.log('Slot not found');
                 }
             };
+
+
+            const cancelBooking = () => {
+                // Reset all selected data and go back to the initial state
+                selectedCategory.value = '';
+                services.value = [];
+                selectedServices.value = [];
+                checkedState.value = {};
+                workers.value = [];
+                highlightedSlots.value = [];
+                selectedWorker.value = null;
+                selectedEndTime.value = null;
+                selectedStart.value = null;
+                selectedEnd.value = null;
+                clickedDate.value = null;
+
+                // Show the first part of the booking form
+                showFirstPart.value = true;
+                showSecondPart.value = false;
+                showTimeTable.value = false;
+                showClientForm.value = false;
+            };
+            const isSubmitRollback = computed(() => {
+                return selectedServices.value.length === 0 && !showFirstPart;
+            });
 
             onMounted(async () => {
 
@@ -369,7 +502,16 @@
             });
 
             return {
-                formatTime,
+                totalPrice,
+                startDateTime,
+                bookedDateTime,
+                formattedTIme,
+                formattedSelectedServices,
+                uniqueDates,
+                getSlot,
+                isSlotHighlighted,
+                slotsOnDate,
+                uniqueTimes,
                 selectedCategory,
                 selectedServices,
                 totalDuration,
@@ -387,6 +529,7 @@
                 workers,
                 slots,
                 selectedWorker,
+                showFirstPart,
                 showSecondPart,
                 showTimeTable,
                 showClientForm,
@@ -395,6 +538,7 @@
                 toggleServiceSelection,
                 submitClientData,
                 clientData,
+                cancelBooking,
             };
         },
         data() {
@@ -403,43 +547,50 @@
         methods: {},
         template: `
             <div class="booking_container">
-                <div class="first_part">
-                    <label for="categorySelect">Select a category:</label>
-                    <select id="categorySelect" v-model="selectedCategory" @change="loadAndDisplayServices">
-                        <option value="" disabled selected>Select category</option>
-                        <option v-for="category in categories" :key="category.category_id" :value="category.category_id">{{ category.name }}</option>
-                    </select>
+                <div class="services_selection" v-if="showFirstPart">
+                    <div class="first_part">
+                        <div class="blockTest">
+                            <h2>Category</h2>
 
-                    <div id="serviceCheckboxes">
-                        <label v-for="service in services" :key="service.service_id">
-                            <input
-                            type="checkbox"
-                                :checked="checkedState[service.service_id]"
-                                @change="toggleServiceSelection(service, allServices)"
-                            >
-                            {{ service.name }}
-                        </label>
+                            <div class="category_selection">
+                                <label for="categorySelect">Select a category:</label>
+                                <select id="categorySelect" v-model="selectedCategory" @change="loadAndDisplayServices">
+                                  <option v-for="category in categories" :key="category.category_id" :value="category.category_id">
+                                    {{ category.name }}
+                                  </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="serviceCheckboxes">
+                            <h2>Service name</h2>
+
+                            <label v-for="service in services" :key="service.service_id">
+                                <li>
+                                    <input
+                                        type="checkbox"
+                                        :checked="checkedState[service.service_id]"
+                                        @change="toggleServiceSelection(service, allServices)"
+                                    >
+                                    {{ service.name }}<br>
+                                    <span class="duration">Duration: {{ formattedTIme(service.duration_minutes) }}</span>
+                                </li>
+                            </label>
+                        </div>
                     </div>
-
-                    <p id="selected-services">{{selectedServices.map(service => service.name)}}</p>
-                    <p id="duration">{{formatTime}}</p>
-
-
-                    <button id="submitButton" type="button" @click="fetchWorkers" :disabled="isSubmitDisabled">Submit</button>
 
                     <br>
                 </div>
-                <div v-if="showSecondPart">
+                <div id="second-part" v-if="showSecondPart">
 
                     <div v-if="workers.length">
-                        <p>Workers: {{ workers }}</p>
+                        <p>Chose worker: <!--{{ workers }}--></p>
                     </div>
                     <div v-else>
                         No workers found
                     </div>
 
                     <select v-model="selectedWorker" @change="handleSelectedWorkerChange">
-                        <option v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker }}</option>
+                        <option v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker.name }}</option>
                     </select>
 
 
@@ -449,46 +600,101 @@
 
         <!--TimeTable-->
 
-                <div v-if="showTimeTable">
-                    <table id="available-slots-table">
-                        <thead>
-                        <tr>
-                            <th scope="col">Start Time</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                             <tr
-                                v-for="slot in slots"
-                                :key="slot.start"
-                                @mouseover="handleSlotMouseOver(slot)"
-                                :class="{ 'unavailable-slot': !isSlotAvailable(slot), 'highlighted-slot': highlightedSlots.includes(slot) }"
-                                    @click="handleSlotClick(slot)"
-                             >
-                                <td>{{ slot }}</td>
-                             </tr>
-                       </tbody>
-                    </table>
+            <div v-if="showTimeTable">
+             <table>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th v-for="date in uniqueDates">{{ date }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="time in uniqueTimes" :key="time">
+                    <td>{{ time }}</td>
+                        <td
+                            v-for="date in uniqueDates"
+                            :key="date"
+                            @mouseover="handleSlotMouseOver(time, date)"
+                            @click="handleSlotClick(time, date, slot)"
+                            :class="{'unavailable': !getSlot(time, date).isAvailable, 'highlighted-slot': isSlotHighlighted(time, date)}"
+                        >
 
+                      <div v-if="getSlot(time, date)">
+                        {{ getSlot(time, date).isAvailable ? '' : '' }}
+                      </div>
+                      <div v-else>
+                        No slot available
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+                <div class="final_part" v-if="showClientForm">
+                    <div class="client_info">
+                        <div class="final_info time_info">
+                            <h3>Selected time</h3>
+                            <p>{{ bookedDateTime }}</p>
+                        </div>
+
+                        <div class="final_info salon_info">
+                            <h4>Salon</h4>
+                            <div class="salon_info">
+                                <p>Explorer HAIR STUDIO</p>
+                                <p>Kai 1,Explorer ärimaja</p>
+                            </div>
+                        </div>
+
+                        <div class="final_info worker_info">
+                            <h4>Worker</h4>
+                            <p v-for="worker in workers" :key="worker.worker_id" :value="worker.worker_id">{{ worker.name }}</p>
+                        </div>
+                        <div class="final_info selectedServices_info">
+                            <h3>Selected services</h3>
+                            <p>{{formattedSelectedServices(selectedServices)}}</p>
+                        </div>
+                        <div class="final_info totalPrice_info">
+                            <h4>Price</h4>
+                            <p>{{ totalPrice }}€</p>
+                        </div>
+                    </div>
+
+                    <div class="client_form" >
+                        <h2>Client Information Form</h2>
+
+                        <form class="client-form">
+                          <div class="form-group">
+                            <label for="clientName">Name:</label>
+                            <input v-model="clientData.clientName" type="text" id="clientName" name="clientName" required>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="clientTel">Telephone Number:</label>
+                            <input v-model="clientData.clientTel" type="tel" id="clientTel" name="clientTel" required>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="clientEmail">Email:</label>
+                            <input v-model="clientData.clientEmail" type="email" id="clientEmail" name="clientEmail" required>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="clientAdditionalInfo">Additional Info:</label>
+                            <input v-model="clientData.clientAdditionalInfo" type="text" id="clientAdditionalInfo" name="clientAdditionalInfo">
+                          </div>
+
+                          <div class="form-group">
+                            <button id="send_user_data" type="button" @click="submitClientData">Send User Data</button>
+                          </div>
+                        </form>
+                    </div>
                 </div>
+                <div class="info_about_booking">
+                    <p v-if="selectedServices" id="selected-services">{{formattedSelectedServices(selectedServices)}}</p>
+                    <p id="duration">{{ formattedTIme(totalDuration) }}</p>
+                    <button class="button_booking_container" id="cancelButton" type="button" @click="cancelBooking">Cancel</button>
+                    <button class="button_booking_container" id="submitButton" type="button" @click="fetchWorkers" :disabled="isSubmitDisabled">Submit</button>
 
-                <div class="client_form" v-if="showClientForm">
-                    <h2>Client Information Form</h2>
-
-                    <form>
-                        <label for="clientName">Name:</label>
-                        <input v-model="clientData.clientName" type="text" id="clientName" name="clientName" required>
-
-                        <br>
-                        <label for="clientTel">Telephone Number:</label>
-                        <input v-model="clientData.clientTel" type="tel" id="clientTel" name="clientTel">
-
-                        <br>
-                        <label for="clientEmail">Email:</label>
-                        <input v-model="clientData.clientEmail" type="email" id="clientEmail" name="clientEmail">
-
-                        <br>
-                        <button id="send_user_data" type="submit" @click="submitClientData">Send User Data</button>
-                    </form>
                 </div>
             </div>
         `,

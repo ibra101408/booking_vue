@@ -8,6 +8,7 @@ const {I18n} = require('i18n');
 const i18n = new I18n({
     locales: ['et', 'ru'], directory: __dirname + '/locales', defaultLocale: 'et',
 });
+require('./routes/sendberry').scheduleCronJob();
 
 
 // Init middleware
@@ -31,9 +32,7 @@ app.set('view engine', 'ejs');
 app.set('layout', 'layouts/public');
 
 // Routes
-app.use('/category', require('./routes/category'));
 app.use('/api', require('./routes/api'));
-app.use('/workers', require('./routes/workers'));
 app.use('/', require('./routes/services'));
 app.use('/', require('./routes/index'));
 
