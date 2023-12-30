@@ -98,7 +98,6 @@ class GoogleCalendar {
                     dateTime: endDateTimeLocal.toUTC().toISO(),
                     timeZone: this.timezone,
                 },
-                // TODO: remove the test string
                 summary: `${clientName}, ${clientTel}, ${selectedServicesString}` +
                     (clientAdditionalInfo ? `, ${clientAdditionalInfo}` : ''),
                 extendedProperties: {
