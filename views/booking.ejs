@@ -236,7 +236,7 @@
 <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
 <script type="module">
 
-    import {createApp, ref, onMounted, computed} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+    import {computed, createApp, onMounted, ref} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
 
     // Now you can use vuelidate as vuelidate.useVuelidate
     createApp({
@@ -297,30 +297,32 @@
                 selectedDate.value = date || luxon.DateTime.local().toISODate();
                 console.log("selectedWorker.value.worker_id", selectedWorker.value.worker_id)
                 try {
-                    const responseData = await http.get(`/timeslots?worker=${selectedWorker.value.worker_id}&date=${selectedDate.value}`);
-                    const currentTime = luxon.DateTime.local();
-                    console.log("selectedWorker.value", selectedWorker.value)
-                    slots.value = responseData
-                        .map(slot => {
-                            const slotDateTime = luxon.DateTime.fromISO(slot.start);
+                    await http.get(`/timeslots?worker=${selectedWorker.value.worker_id}&date=${selectedDate.value}`, response => {
+                        const currentTime = luxon.DateTime.local();
+                        console.log("selectedWorker.value", selectedWorker.value)
+                        slots.value = response
+                            .map(slot => {
+                                const slotDateTime = luxon.DateTime.fromISO(slot.start);
 
-                            return {
-                                start: slot.start, // Add this line for additional logging
-                                end: slot.end, // Add this line for additional logging
-                                slotDate: slotDateTime.toISODate(), // Add this line for additional logging
-                                startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
-                                endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
-                                // weekday: slotDate.toFormat('EEEE'), // Add weekday information
+                                return {
+                                    start: slot.start, // Add this line for additional logging
+                                    end: slot.end, // Add this line for additional logging
+                                    slotDate: slotDateTime.toISODate(), // Add this line for additional logging
+                                    startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
+                                    endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
+                                    // weekday: slotDate.toFormat('EEEE'), // Add weekday information
 
-                                isAvailable:
-                                    slotDateTime.weekday === 7 ? false :
-                                        slotDateTime >= currentTime.plus({hours: 1}) ?
-                                            slot.isAvailable :
-                                            false, // set to false if before cutoff
-                            };
+                                    isAvailable:
+                                        slotDateTime.weekday === 7 ? false :
+                                            slotDateTime >= currentTime.plus({hours: 1}) ?
+                                                slot.isAvailable :
+                                                false, // set to false if before cutoff
+                                };
 
-                        })
-                        .filter(slot => slot !== null); // Remove null entries
+                            })
+                            .filter(slot => slot !== null); // Remove null entries
+                    });
+
 
                 } catch (error) {
                     console.error('Error fetching available slots:', error);
@@ -355,51 +357,36 @@
                 const start = selectedStart.value;
                 const end = selectedEnd.value;
 
+                if (!isValidForm.value) {
+                    console.log("not valid")
+                    return
+                }
 
-                try {
-                    if (!isValidForm.value) {
-                        console.log("not valid")
-                        return
+                await scheduleEvent(
+                    start,
+                    end,
+                    clickedDate,
+                    selectedDate,
+                    clientName,
+                    clientTel,
+                    clientEmail,
+                    clientAdditionalInfo
+                ).then(async () => {
+                    await sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo);
+                    await sendOrder(clientId.value, totalPrice);
+                    await sendOrderServices(orderId, selectedServices);
+                }).catch(error => {
+
+                    // Check if the error is due to a conflict
+                    if (error.message === '409') {
+                        return showMessage('Error', `<%= __('scheduling_conflict_error_message') %>`)
                     }
 
+                    // Handle other errors
+                    return showMessage('Error ' + error.statusCode, error.message);
+                });
 
-                    await scheduleEvent(
-                        start,
-                        end,
-                        clickedDate,
-                        selectedDate,
-                        clientName,
-                        clientTel,
-                        clientEmail,
-                        clientAdditionalInfo
-                    );
-
-                    await sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo);
-
-                    const clientID = clientId.value;
-
-                    await sendOrder(clientID, totalPrice);
-
-                    await sendOrderServices(orderId, selectedServices);
-
-                    //$('#confirmationModal').modal('show');
-
-                    // const modalHandler = new bootstrap.Modal(document.getElementById('error-modal'), {});
-
-                    // eslint-disable-next-line no-undef
-                    //    document.querySelector('#error-modal-title').textContent = "success";
-
-                    // eslint-disable-next-line no-undef
-                    //   document.querySelector('#error-modal-body').innerHTML = "booking successfully created";
-
-
-                    // Show modal
-                    //modalHandler.show();
-                    // cancelBooking();
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            };
+            }
 
             const handleModalClose = () => {
 
@@ -483,65 +470,50 @@
             }
 
             async function scheduleEvent(start, end, clickedDate, selectedDate, clientName, clientTel, clientEmail, clientAdditionalInfo) {
-                try {
-                    let conflict = false;
-                    const selectedDateString = typeof clickedDate === 'string' ? clickedDate : clickedDate.value || luxon.DateTime.local().toISODate();
 
-                    //  startDateTime.value = "2023-12-30T09:00";
-                    //  endDateTime.value = "2023-12-30T10:00";
-                    endDateTime.value = selectedDateString + "T" + end;
-                    startDateTime.value = selectedDateString + "T" + start;
+                const selectedDateString = typeof clickedDate === 'string' ? clickedDate : clickedDate.value || luxon.DateTime.local().toISODate();
 
-                    console.log("startDateTime!", startDateTime.value);
-                    //console.log("selectedServices.value!", selectedServices.value)
+                //  startDateTime.value = "2023-12-30T09:00";
+                //  endDateTime.value = "2023-12-30T10:00";
+                endDateTime.value = selectedDateString + "T" + end;
+                startDateTime.value = selectedDateString + "T" + start;
 
-                    const scheduleResponse = await http.post('/schedule-event', {
-                        start: startDateTime.value,
-                        end: endDateTime.value,
-                        clientName,
-                        clientTel,
-                        clientEmail,
-                        clientAdditionalInfo,
-                        selectedServices: selectedServices.value,
-                        selectedWorker: selectedWorker.value.worker_id,
-                    }, function (error) {
-                        try {
+                await http.post('/schedule-event', {
+                    start: startDateTime.value,
+                    end: endDateTime.value,
+                    clientName,
+                    clientTel,
+                    clientEmail,
+                    clientAdditionalInfo,
+                    selectedServices: selectedServices.value,
+                    selectedWorker: selectedWorker.value.worker_id,
+                }, function (response) {
+
+                    // Show success or error message
+                    if(response.message === 'Success'){
+                        showMessage('Success', '<%= __('booking_success_message') %>', function () {
+
+                            // Redirect to /
+                            window.location.href = '/';
+                        })
+
+                    }else{
+                        showMessage('Error', JSON.stringify(response));
+                    }
+
+                }, function (error) {
+                    if(error.statusCode === 409){
+                        throw new Error('409');
+                    }else{
+                        throw new Error(error.message);
+                    }
+                })
 
 
-                            // Check if the error is due to a conflict
-                            if (error.statusCode === 409) {
-                                // Show a custom error message
-                                showError('Error', 'The selected time is not available. Please choose a different time.');
-                                conflict = true;
-                                console.log("1?", conflict)
-                                //  debugger
-                                throw new Error('Scheduling conflict: The selected time is not available.');
-
-                                // Re-throw error to be handled by the catch block
-                            }
-                        } catch (error) {
-                            console.log("error in catch", error)
-                            return showError('Error', error);
-                        }
-                    });
-
-                   /* if (scheduleResponse) {
-                        console.log('Event scheduled successfully:', scheduleResponse);
-                    } else {
-                        console.log('Error scheduling event3:', scheduleResponse);
-                    }*/
-
-                    //   }
-                } catch (error) {
-
-                    // debugger
-                    console.log("error", error)
-                    return showError('Error', error);
-
-                }
             }
 
-            const showError = (title, body) => {
+            const showMessage = (title, body, closeBtnCallback = null) => {
+
                 // eslint-disable-next-line no-undef
                 const modalHandler = new bootstrap.Modal(document.getElementById('error-modal'), {});
 
@@ -551,8 +523,16 @@
                 // eslint-disable-next-line no-undef
                 document.querySelector('#error-modal-body').innerHTML = body;
 
+                // Run the callback function when the modal is closed
+                if (closeBtnCallback) {
+
+                    // eslint-disable-next-line no-undef
+                    document.querySelector('#error-modal-close-btn').addEventListener('click', closeBtnCallback);
+                }
+
                 // Show modal
                 modalHandler.show();
+
             }
 
             const loadAndDisplayServices = async () => {
@@ -927,4 +907,3 @@
 
     }).mount('#booking');
 </script>
-<!--Heap dump has been created at /Users/daniilvodenejev/Library/Caches/JetBrains/WebStorm2023.2/tmp/hprof-temp/heapDump-webstorm-1704378295415.hprof. It will be analyzed next time you start WebStorm.-->

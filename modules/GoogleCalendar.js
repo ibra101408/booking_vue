@@ -1,6 +1,5 @@
 const {google} = require('googleapis');
 const {DateTime} = require('luxon');
-//const {response} = require('express');
 
 //const timers = require('timers');
 
@@ -74,8 +73,6 @@ class GoogleCalendar {
      * @returns {Promise<Object>} A promise that resolves to the scheduled event data.
      * @throws {Error} If there's an error in scheduling the event.
      */
-
-
     async scheduleEvent(start, end, clientName, clientTel, clientEmail, clientAdditionalInfo, selectedServices, calendarId) {
         // Validate input parameters if necessary
         const startDateTimeLocal = DateTime.fromISO(start, {zone: this.timezone});
@@ -87,7 +84,6 @@ class GoogleCalendar {
         // Convert array to a comma-separated string
         const selectedServicesString = selectedServices.map(service => service.name).join(', ');
 
-        //const googleApiResponse = await this.calendar.events.insert({
         return await this.calendar.events.insert({
             calendarId,
             auth: this.oauth2Client,
@@ -146,44 +142,12 @@ class GoogleCalendar {
             });
             return response.data.items;
         } catch (error) {
-            console.error(`Error fetching events: ${error.message}`);
-            console.error('Error details:', error.errors);
-
-            throw new Error('Error fetching eventsss');
-        }
-    }
-
-
-    /**
-     * Fetches events for a specific date from the specified calendar.
-     *
-     * @param {string} date - The date for which to fetch events (in ISO format).
-     * @param {string} calendarId - The ID of the calendar from which to fetch events.
-     * @returns {Promise<Array>} A promise that resolves to an array of events.
-     * @throws {Error} If there's an error in fetching events from the calendar.
-     */
-    async fetchEventsForDate(date, calendarId) {
-        this.validateDate(date);
-        this.validateCalendarId(calendarId);
-
-        const dateWithTz = DateTime.fromISO(date, {zone: this.timezone});
-        const startTime = dateWithTz.startOf('day').toISO();
-        const endTime = dateWithTz.plus({day: 10}).endOf('day').toISO();
-
-        try {
-            const response = await this.calendar.events.list({
-                calendarId,
-                timeMin: startTime,
-                timeMax: endTime,
-                singleEvents: true,
-                orderBy: 'startTime',
-            });
-            return response.data.items;
-        } catch (error) {
-            console.error(`Error fetching events: ${error.message}`);
+            console.error(error.message);
+            console.error(error.stack);
             throw error;
         }
     }
+
 }
 
 module.exports = GoogleCalendar;
