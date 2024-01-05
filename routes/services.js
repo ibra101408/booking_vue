@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('../modules/database');
 
 router.get('/', async (req, res) => {
-    const local = req.query.lang || 'et';
     const currentLocale = res.locals.currentLocale;
 
     const [about_services, services] = await Promise.all([
@@ -14,11 +13,15 @@ router.get('/', async (req, res) => {
     res.render('index', {
         about_services,
         services,
-        local
+        currentLocale
     });
-
 });
 
+router.get('/curLoc', async (req, res) => {
+
+    const currentLocale = res.locals.currentLocale;
+    res.json({ currentLocale });
+});
 router.get('/category', async (req, res) => {
     try {
         const sql = 'SELECT category_id, name FROM category LIMIT 3';
@@ -42,12 +45,14 @@ router.get('/services', async (req, res) => {
     const currentLocale = res.locals.currentLocale;
 
     try {
-        const rows = await db(`SELECT service_id, ${currentLocale} AS name, duration_minutes, price FROM service`);
+        const rows = await db(`SELECT service_id, ${currentLocale} AS name, duration_minutes, price, is_additional_material, is_price_range FROM service`);
         const services = rows.map(row => ({
             service_id: row.service_id,
             name: row.name,
             duration_minutes: row.duration_minutes,
-            price: row.price
+            price: row.price,
+            is_price_range: row.is_price_range,
+            is_additional_material: row.is_additional_material
         }));
         res.json(services);
     } catch (err) {
@@ -58,12 +63,11 @@ router.get('/services', async (req, res) => {
 
 router.get('/services/:categoryId', async (req, res) => {
 
-    //const local = req.query.lang || 'et';
     const currentLocale = res.locals.currentLocale || 'et';
 
     try {
         const categoryId = req.params.categoryId;
-        const sql = `SELECT service_id, ${currentLocale} AS name, duration_minutes, price FROM service WHERE category_id = ?`;
+        const sql = `SELECT service_id, ${currentLocale} AS name, duration_minutes, price, is_additional_material, is_price_range FROM service WHERE category_id = ?`;
         //const sql = `SELECT * FROM service WHERE category_id = ?`;
         const rows = await db(sql, [categoryId]);
 
@@ -72,8 +76,9 @@ router.get('/services/:categoryId', async (req, res) => {
             name: row.name,
             duration_minutes: row.duration_minutes,
             price: row.price,
+            is_price_range: row.is_price_range,
+            is_additional_material: row.is_additional_material
         }));
-
         res.json(services);
     } catch (err) {
         console.error(err.message);
@@ -93,10 +98,10 @@ router.post('/workers', async (req, res) => {
         const sql = `
             SELECT DISTINCT w.*
                 FROM worker w
-                        JOIN worker_services ws ON w.worker_id = ws.worker_id
-                WHERE ws.service_id IN (${placeholders})
-                GROUP BY w.worker_id
-                HAVING COUNT(DISTINCT ws.service_id) = ${selectedServices.length}
+                    JOIN worker_services ws ON w.worker_id = ws.worker_id
+                    WHERE ws.service_id IN (${placeholders})
+                    GROUP BY w.worker_id
+                    HAVING COUNT(DISTINCT ws.service_id) = ${selectedServices.length}
         `;
 
         const rows = await db(sql, selectedServices);
@@ -136,7 +141,6 @@ router.post('/order', async (req, res) => {
         const params = [clientId, totalPrice];
         const result = await db(sql, params);
 
-        console.log('result in order', result.insertId);
         res.json({ orderId: result.insertId });
     } catch (err) {
         console.error(err.message);
@@ -154,8 +158,6 @@ router.post('/order_services', async (req, res) => {
         if (selectedServices && Array.isArray(selectedServices._value)) {
             for (let service of selectedServices._value) {
                 serviceIds.push(service.service_id);
-
-                console.log('serviceIDS ', serviceIds);
             }
         } else {
             console.error('_value is not an array or is undefined');

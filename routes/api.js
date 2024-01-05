@@ -27,7 +27,7 @@ router.get('/timeslots', async (req, res) => {
         const existingEvents = await googleCalendar.fetchEventsForDate(selectedDate, calendarId);
 
         // Create time slots for a range of 10 days
-        const endDate = DateTime.fromISO(selectedDate).plus({ day: 10 }).toISODate();
+        const endDate = DateTime.fromISO(selectedDate).plus({ day: 7 }).toISODate();
         const timeSlots = [];
 
         for (let currentDate = DateTime.fromISO(selectedDate); currentDate.toISODate() <= endDate; currentDate = currentDate.plus({ day: 1 })) {
@@ -74,7 +74,6 @@ router.post('/schedule-event', async (req, res) => {
             scheduledEvent,
         });
     } catch (error) {
-
         if (error.message === '409') {
             // There is a conflict, send a 409 response
             return res.status(409).json({error: 'Event conflicts with an existing event'});

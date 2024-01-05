@@ -1,3 +1,6 @@
+<%- include ('./partials/header.ejs') %>
+
+
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"/>
 
@@ -6,7 +9,7 @@
 
     <div class="welcome_text_button">
         <h1 class="slogan"><%= __('slogan') %></h1>
-        <button class="booking_link"><%= __('bookingLink') %></button>
+        <button class="booking_link"><a class="nav-link" href="#booking"><%= __('booking_link') %></a></button>
     </div>
 
     <img class="bg_img" src="/assets/bg/homepage_bg.jpg" alt="bg"/>
@@ -24,12 +27,13 @@
         <img class="img6" src="/assets/jelena.png" alt="jelena"/>
         <em class="transitional transitional_worker"><%= __('stylist') %></em>
         <div class="divider2"></div>
-        <h2 class="worker-name"><%= __('elenaPahnapuu') %></h2>
+        <h2 class="worker-name"><%= __('elena_pahnapuu') %></h2>
         <img class="img7" src="/assets/bg/intro-bg2.jpg" alt="intro_bg2"/>
     </div>
 
 </div>
 <!--services-->
+<div id="services"></div>
 <div class="container service_container">
     <h4 class="transitional transitional_services"><%= __('our') %></h4>
     <h1 class="heading"><%= __('services') %></h1>
@@ -42,8 +46,8 @@
         %>
             <div class="services_box">
                 <img class="image" src="<%= service.img_path %>" alt="<%= service.name_et %> Image"/>
-                <h3 class="service_name"><%= local === 'ru' ? service.name_ru : service.name_et %></h3>
-                <p class="text service_text"><%= local === 'ru' ? service.description_ru : service.description_et %></p>
+                <h3 class="service_name"><%= currentLocale === 'ru' ? service.name_ru : service.name_et %></h3>
+                <p class="text service_text"><%= currentLocale === 'ru' ? service.description_ru : service.description_et %></p>
             </div>
         <% }); %>
     </div>
@@ -90,8 +94,8 @@
 </div>
 
 <!--pricelist  -->
-
-<div class="container prices_container">
+<div id="pricelist"></div>
+<div id=pricelist" class="container prices_container">
     <h4 class="transitional transitional_prices"><%= __('our') %></h4>
     <h1 class="heading"><%= __('prices') %></h1>
     <div class="divider dark_divider"></div>
@@ -212,7 +216,7 @@
 </div>
 
 <!--working hours-->
-<div class="container workingHours_container">
+<div id="time" class="container workingHours_container">
     <h4 class="transitional"> <%= __('our_working_hours') %></h4>
     <h1 class="heading"> <%= __('working_hours') %></h1>
     <div class="divider"></div>
@@ -313,6 +317,7 @@
         </div>
     </div>
 </div>
+<%- include ('./booking.ejs') %>
 
 
     <script>
@@ -409,4 +414,7 @@
     </script>
 
 
+
+
+<%- include ('./partials/footer.ejs') %>
 

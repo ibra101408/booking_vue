@@ -1,5 +1,6 @@
 const {google} = require('googleapis');
 const {DateTime} = require('luxon');
+//const {response} = require('express');
 
 //const timers = require('timers');
 
@@ -86,7 +87,8 @@ class GoogleCalendar {
         // Convert array to a comma-separated string
         const selectedServicesString = selectedServices.map(service => service.name).join(', ');
 
-        const googleApiResponse = await this.calendar.events.insert({
+        //const googleApiResponse = await this.calendar.events.insert({
+        return await this.calendar.events.insert({
             calendarId,
             auth: this.oauth2Client,
             requestBody: {
@@ -111,8 +113,7 @@ class GoogleCalendar {
                 }
             },
         });
-
-        return googleApiResponse.data; // Return the scheduled event data
+        // return googleApiResponse; // Return the scheduled event data
 
     }
 
@@ -143,7 +144,6 @@ class GoogleCalendar {
                 singleEvents: true,
                 orderBy: 'startTime',
             });
-
             return response.data.items;
         } catch (error) {
             console.error(`Error fetching events: ${error.message}`);
@@ -168,7 +168,6 @@ class GoogleCalendar {
 
         const dateWithTz = DateTime.fromISO(date, {zone: this.timezone});
         const startTime = dateWithTz.startOf('day').toISO();
-        // const endTime = dateWithTz.plus({days: 10}).endOf('day').toISO();
         const endTime = dateWithTz.plus({day: 10}).endOf('day').toISO();
 
         try {

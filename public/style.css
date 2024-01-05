@@ -39,6 +39,7 @@ h4 {
     font-size: 20px;
     width: 33rem;
     text-align: center;
+    margin: auto;
 }
 
 @media screen and (max-width: 700px) {
@@ -608,7 +609,7 @@ span.price {
 .price_card {
     position: relative;
     padding: 80px 15px;
-    background: var(--primary_color);
+    background: #ceb19b;
 }
 
 .price_card::before,
@@ -1038,6 +1039,7 @@ th {
 }
 
 
+/*  booking  */
 
 .booking_container{
     width: 50%;
@@ -1045,12 +1047,13 @@ th {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 20px auto;
+    margin: 90px auto;
 }
+
+
 .services_selection{
-   /* display: flex;
+    display: flex;
     flex-direction: column;
-    gap: 10px;*/
 }
 
 /* Styling for the first part of the booking form */
@@ -1061,9 +1064,13 @@ th {
     justify-content: space-between;
 }
 
+.transitional_booking {
+    text-align: center;
+    margin-top: 40px;
+}
 /* Styling for the category select */
 #categorySelect {
-    width: 100%;
+    width: fit-content;
     padding: 10px;
     margin-bottom: 10px;
 }
@@ -1072,6 +1079,38 @@ th {
 #serviceCheckboxes {
     margin-bottom: 10px;
     width: 65%;
+
+}
+#serviceCheckboxes label{
+    width: 100%;
+    word-wrap: break-word;
+}
+.service_name_checklist{
+    font-size: 18px;
+}
+.additional_info{
+    font-size: 12px;
+    color: #6e6e6e;
+}
+.client_info{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%
+}
+.final_info_price_container{
+    display: flex;
+    gap: 8px
+}
+.final_info_selected_services_container{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.final_info_selected_services_container p{
+    margin-bottom: 0;
 }
 
 /* Styling for the selected services paragraph */
@@ -1095,6 +1134,8 @@ th {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-left: auto;
+
 }
 
 #submitButton:disabled {
@@ -1105,12 +1146,15 @@ th {
 .category_selection{
     display: flex;
     flex-direction: column;
-    width: 140px;
+    gap: 10px;
 }
 
 /* Styling for the second part of the booking form */
 #second-part {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
 }
 
 /* Styling for workers select */
@@ -1130,17 +1174,21 @@ select {
 .final_part{
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    gap: 50px;
 }
 
 .final_info{
     display: flex;
     justify-content: space-between;
     padding-bottom: 14px;
+    gap: 20px;
 }
 
-.final_info p {
-    text-align: center;
+.final_info_title{
+
+}
+.final_info_text{
+    text-align: end;
 }
 
 .salon_info p {
@@ -1150,29 +1198,31 @@ select {
 .client_form{
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
-
-table {
+.client_form p{
+    margin: 0;
+    padding: 0;
+}
+.booking_container table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
 /* Style the table header */
-th {
+.booking_container th {
     background-color: #f2f2f2;
     padding: 10px;
     text-align: center !important;
 }
 
 /* Style the table cells :first-child*/
-td {
+.booking_container td {
     border: 1px solid #3d3d3d !important;
     text-align: center;
 }
 
-tr{
+.booking_container tr{
     border: 1px solid #3d3d3d !important;
 }
 /* Style for unavailable slots */
@@ -1189,17 +1239,18 @@ tr{
 #serviceCheckboxes li {
     list-style-type: none;
     padding: 0;
-}
-
-#serviceCheckboxes li {
     margin-bottom: 8px;
+
 }
 
 #serviceCheckboxes label {
     display: block;
     padding: 8px;
-    border: 1px solid #ccc;
     border-radius: 4px;
+}
+.duration{
+    font-size: 12px;
+    color: #6e6e6e;
 }
 
 #serviceCheckboxes input {
@@ -1212,10 +1263,6 @@ tr{
 
 
 .client-form {
-    max-width: 400px;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #ccc;
     border-radius: 5px;
 }
 
@@ -1228,7 +1275,9 @@ tr{
     font-weight: bold;
     margin-bottom: 5px;
 }
-
+.error-message{
+    color: #bb6666;
+}
 .form-group input {
     width: 100%;
     padding: 8px;
@@ -1246,8 +1295,118 @@ tr{
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    width: 100%;
 }
 
 #send_user_data:hover {
     background-color: #45a049;
+}
+.button_booking_container{
+    height: fit-content;
+}
+.info_about_booking{
+    display: flex;
+    justify-content: space-between;
+    text-align: start;
+    align-items: flex-end;
+    flex-direction: column-reverse;
+}
+
+.cancel_buttons {
+    display: flex;
+    gap: 30px;
+    flex-direction: row-reverse;
+}
+.info_about_text_time{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    align-items: flex-end;
+}
+
+.slot-info-container {
+    font-weight: bold; /* Optional: Make the start time bold */
+    color: #3366cc; /* Optional: Customize the color of the start time */
+}
+.time_table_container{
+    overflow: auto;
+}
+tbody tr td:first-child {
+     position: sticky;
+     left: 0;
+ }
+.final_info_heading{
+    margin-bottom: 20px;
+}
+
+@media screen and (max-width: 1230px) {
+    .final_info_heading{
+        font-size: 20px;
+    }
+}
+@media screen and (max-width: 1050px) {
+    .final_part{
+        flex-direction: column;
+    }
+}
+@media screen and (max-width: 855px) {
+    .first_part{
+        flex-direction: column;
+    }
+    #serviceCheckboxes{
+        width: 100%;
+    }
+    #serviceCheckboxes label {
+        word-wrap: break-word;
+    }
+
+}
+
+@media screen and (max-width: 630px) {
+    .booking_container{
+        width: 65%;
+    }
+    .final_info{
+        flex-direction: column;
+        align-items: center;
+    }
+    .final_info_title{
+        margin-bottom: 10px;
+        border-bottom: black 1px solid;
+        font-size: 20px;
+        text-align: center;
+    }
+    .final_info_selected_services_container{
+        align-items: center;
+    }
+    .final_info_text{
+        text-align: center;
+    }
+    .final_info_heading{
+        font-size: 24px;
+        word-wrap: break-word;
+    }
+}
+
+
+
+
+#serviceCheckboxes li:first-child {
+    display: grid;
+    grid-template-columns: 20px 95%;
+    align-items: start;
+    gap: 10px;
+}
+
+#serviceCheckboxes input {
+    grid-column: 1; /* Place the checkbox in the first column */
+}
+
+#serviceCheckboxes .service_name_checklist {
+    grid-column: 2; /* Place the service name in the second column */
+    margin-right: 10px; /* Optional: Adjust the margin for better spacing */
+}
+
+#serviceCheckboxes span.duration {
+    grid-column: 2; /* Place the duration in the second column */
 }

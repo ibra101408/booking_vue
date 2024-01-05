@@ -2,6 +2,8 @@ const cron = require('node-cron');
 //const {fetchEventsForDateRange} = require('../modules/GoogleCalendar');
 const GoogleCalendar = require('../modules/GoogleCalendar');
 const axios = require('axios');
+//const {calendar} = require('googleapis/build/src/apis/calendar');
+//const {calendar} = require('googleapis/build/src/apis/calendar');
 
 const googleCalendar = new GoogleCalendar(
     process.env.CLIENT_ID,
@@ -11,17 +13,10 @@ const googleCalendar = new GoogleCalendar(
     process.env.REFRESH_TOKEN,
     process.env.TIMEZONE,
 );
-// Assume you have a function to get orders with scheduled SMS times from the database
-/*const getOrdersWithScheduledSMS = async () => {
-    // Implement logic to fetch orders with scheduled SMS times from the database
-    // ...
 
-    //  return orders;
-};
-*/
 // Function to send SMS using Sendberry API
-const sendSMS = async (message, to) => {
 
+const sendSMS = async (message, to) => {
 
     // Add 372 to numbers starting with 5 and being 7-8 digits long
     if (to.match(/^5\d{6,7}$/)) {
@@ -38,16 +33,16 @@ const sendSMS = async (message, to) => {
         to,
         'with message',
         message
-    )
+    );
 
 
     axios.post('https://api.sendberry.com/SMS/SEND', {
         key: process.env.SENDBERRY_API_KEY,
-        name: 'Daniil',
-        password: 'root',
+        name: process.env.SENDBERRY_USERNAME,
+        password: process.env.SENDBERRY_PASSWORD,
         content: message,
         to: [to],
-        from: '37253311559',
+        from: 'ExplorerHS1',
         callback: function (response) { console.log(response); }, // Optional. Callback function.
         responseformat: 'JSON' // Optional. (JSON or GET)
     }).then(response => {
@@ -71,22 +66,38 @@ const scheduleCronJob = () => {
         const timeMin = new Date(now.getTime() + 59 * 60000).toISOString();  // 59 minutes from now
         const timeMax = new Date(now.getTime() + (24 * 60 + 1) * 60000).toISOString();  // 1 day and 1 minute from now
 
-        // Get appointments from Google Calendar
-        const appointments = await googleCalendar.fetchEventsForDateRange(timeMin, timeMax, 'primary');
+        const calendars = [process.env.WORKER_1_CALENDAR_ID, process.env.WORKER_2_CALENDAR_ID];
 
-        appointments.forEach((event) => {
-            const {summary, start, extendedProperties} = event;
-            const appointmentStart = new Date(start.dateTime);
-            const timeDiff = appointmentStart - now; // Time difference in milliseconds
-            const hoursRemaining = Math.floor(timeDiff / (1000 * 60 * 60));
-            const shortDate = appointmentStart.toLocaleDateString('et-EE', {day: '2-digit', month: '2-digit'});
-            const time = appointmentStart.toLocaleTimeString('et-EE', {hour: '2-digit', minute: '2-digit'});
+        await Promise.all(calendars.map(async (calendarId) => {
 
-            if (hoursRemaining === 1 || hoursRemaining === 24) {
-                sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
-            }
+            //for (const calendarId of calendars) {
+            const appointments = await googleCalendar.fetchEventsForDateRange(timeMin, timeMax, calendarId);
 
-        });
+            //  console.log('appointments', appointments);
+            appointments.forEach((event) => {
+
+                const {summary, start, extendedProperties} = event;
+                const appointmentStart = new Date(start.dateTime);
+                const timeDiff = appointmentStart - now; // Time difference in milliseconds
+                const hoursRemaining = timeDiff / (1000 * 60 * 60);
+                const shortDate = appointmentStart.toLocaleDateString('et-EE', {day: '2-digit', month: '2-digit'});
+                const time = appointmentStart.toLocaleTimeString('et-EE', {hour: '2-digit', minute: '2-digit'});
+
+                if (hoursRemaining === 1 ) {
+
+                    console.log('hoursRemaining', hoursRemaining, summary);
+                    console.log(extendedProperties.private.clientTel);
+
+                    sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
+                }
+                if( hoursRemaining === 24){
+                    console.log('hoursRemaining24?', hoursRemaining, summary);
+                    console.log(extendedProperties.private.clientTel);
+
+                    sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
+                }
+            });
+        }));
     });
 };
 module.exports = {scheduleCronJob};

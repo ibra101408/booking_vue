@@ -26,7 +26,6 @@ const setupI18n = (app) => {
         if (req.query.locale) {
             res.cookie('locale', req.query.locale, {maxAge: 900000, httpOnly: true});
         }
-
         req.setLocale(currentLocale);
         res.locals.currentLocale = currentLocale;
         res.locals.locales = i18n.getLocales();

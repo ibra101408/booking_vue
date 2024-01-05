@@ -5,7 +5,6 @@ require('dotenv').config({});
 require('./modules/i18n')(app);
 require('./routes/cron').scheduleCronJob();
 
-
 // Init middleware
 
 app.use(express.static('public'));
@@ -19,9 +18,9 @@ app.set('view engine', 'ejs');
 app.set('layout', 'layouts/public');
 
 // Routes
+app.use ('/admin', require('./routes/admin'));
 app.use('/api', require('./routes/api'));
 app.use('/', require('./routes/services'));
-app.use('/', require('./routes/index'));
 
 app.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running on port http://localhost:${(process.env.PORT || 3000)}`);
