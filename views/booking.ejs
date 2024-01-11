@@ -1,0 +1,891 @@
+<div id="booking">
+    <h4 class="transitional transitional_booking"><%= __('transitional_booking') %></h4>
+    <h1 class="heading"><%= __('book') %></h1>
+    <div class="divider dark_divider"></div>
+    <p class="text booking_text">
+        <%= __('booking_text') %>
+    </p>
+    <div class="booking_container">
+        <div class="services_selection" v-if="showFirstPart">
+            <div class="first_part">
+                <div class="blockTest">
+                    <h2><%= __('category') %></h2>
+
+                    <div class="category_selection">
+                        <label for="categorySelect"><%= __('choose_category') %></label>
+                        <select id="categorySelect" v-model="selectedCategory" @change="loadAndDisplayServices">
+                            <option v-for="category in categories" :key="category.category_id"
+                                    :value="category.category_id">
+                                {{category.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div id="serviceCheckboxes">
+                    <h2><%= __('services') %></h2>
+                    <label v-for="service in services" :key="service.service_id">
+                        <li>
+                            <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    :checked="checkedState[service.service_id]"
+                                    @change="toggleServiceSelection(service, allServices)"
+                            >
+                            <span class="service_name_checklist">{{ service.name }}</span>
+                            <span></span>
+                            <span v-if="service.is_price_range || service.is_additional_material"
+                                  :class="{ 'additional_info': service.is_price_range || service.is_additional_material }">
+                                {{ service.is_price_range ? `<%= __('is_price_add') %>` : '' }}
+                                {{ service.is_additional_material ? `<%= __('is_add_material') %>`  : '' }}
+                            </span>
+                            <span class="duration"
+                                  :style="{ 'margin-right': (service.is_price_range || service.is_additional_material) ? '8px' : '0' }">
+                                <%= __('duration') %>: {{ formattedTIme(service.duration_minutes) }}
+                            </span>
+                        </li>
+                    </label>
+                </div>
+            </div>
+            <button class="button_booking_container" id="submitButton" type="button" @click="fetchWorkers"
+                    :disabled="isSubmitDisabled"><%= __('submit') %>
+            </button>
+            <br>
+        </div>
+
+        <div id="second-part" v-if="showSecondPart">
+            <div v-if="workers.length">
+                <p><%= __('choose_worker') %>:</p>
+            </div>
+            <div v-else>
+                <%= __('worker_not_found') %>
+            </div>
+
+            <select v-model="selectedWorker" @change="handleSelectedWorkerChange">
+                <option v-for="worker in workers" :key="worker.worker_id" :value="worker">{{ worker.name }}
+                </option>
+            </select>
+
+
+            <label for="selected-date"><%= __('select_date') %></label>
+            <input v-model="selectedDate" type="date" id="selected-date" @change="handleDateChange">
+        </div>
+
+        <!--TimeTable-->
+
+        <div v-if="showTimeTable" class="time_table_container">
+            <table class="timeSlot_table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th v-for="date in uniqueDates" :key="date">
+                        {{ formatDate(date) }}
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="time in uniqueTimes" :key="time">
+                    <td>{{ time }}</td>
+                    <td
+                            v-for="date in uniqueDates"
+                            :key="date"
+                            @mouseover="handleSlotMouseOver(time, date)"
+                            @click="handleSlotClick(time, date, slot)"
+                            :class="{'unavailable': !getSlot(time, date).isAvailable,
+                                'highlighted-slot': isSlotHighlighted(time, date)}"
+                    >
+
+                        <div v-if="getSlot(time, date)">
+                            {{ getSlot(time, date).isAvailable ? '' : '' }}
+                        </div>
+                        <div v-else>
+                            <%= __('not_available') %>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Info and Client form-->
+        <div class="final_part" v-if="showClientForm">
+            <div class="client_info">
+                <h2 class="final_info_heading"><%= __('booking_info') %><br> <%= __('info') %></h2>
+                <div class="final_info time_info">
+                    <p class="final_info_title"><%= __('selected_time') %></p>
+                    <p class="final_info_text">{{ bookedDateTime }}</p>
+                </div>
+
+                <div class="final_info salon_info">
+                    <p class="final_info_title"><%= __('location') %></p>
+                    <div class="salon_info">
+                        <p class="final_info_text">Explorer HAIR STUDIO</p>
+                        <p class="final_info_text">Kai 1, Explorer ärimaja</p>
+                    </div>
+                </div>
+
+                <div class="final_info worker_info">
+                    <p class="final_info_title"><%= __('worker') %></p>
+                    <p>{{ selectedWorker.name }}</p>
+                </div>
+                <div class="final_info selectedServices_info">
+                    <p class="final_info_title"><%= __('selected_services') %></p>
+                    <div class="final_info_selected_services_container">
+                        <p class="final_info_text" v-html="formattedSelectedServices(selectedServices)">
+                        </p>
+                        <span v-if="selectedServices" v-html="formatAdditionalMaterial(selectedServices)">
+                        </span>
+                    </div>
+                </div>
+                <div class="final_info totalPrice_info">
+                    <p class="final_info_title"><%= __('price') %></p>
+                    <div class="final_info_price_container">
+                        <span v-if="selectedServices" v-html="formatAdditionalPrice(selectedServices)">
+                        </span>
+                        <p>{{ totalPrice }}€</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="client_form">
+                <h2 class="final_info_heading"><%= __('your_contact') %></h2>
+                <form class="client-form">
+                    <div class="form-group">
+                        <label for="clientName"><%= __('your_name') %>:</label>
+                        <input
+                                v-model="clientData.clientName"
+                                type="text"
+                                id="clientName"
+                                name="clientName"
+                                required
+                        >
+                        <p class="error-message">{{ nameError }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientTel"><%= __('your_phone') %>:</label>
+                        <input
+                                v-model="clientData.clientTel"
+                                type="tel"
+                                id="clientTel"
+                                name="clientTel"
+                                required
+                        >
+                        <p class="error-message">{{ telError }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientEmail"><%= __('your_email') %>:</label>
+                        <input
+                                v-model="clientData.clientEmail"
+                                type="email"
+                                id="clientEmail"
+                                name="clientEmail"
+                                required
+                        >
+                        <p class="error-message">{{ emailError }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clientAdditionalInfo"><%= __('additional_info') %>:</label>
+                        <input
+                                v-model="clientData.clientAdditionalInfo"
+                                type="text"
+                                id="clientAdditionalInfo"
+                                name="clientAdditionalInfo"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <button id="send_user_data" type="button"
+                                @click="submitClientData"><%= __('booking') %></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="info_about_booking">
+            <div class="cancel_buttons">
+                <button class="button_booking_container" id="cancelButton" type="button" @click="cancelBooking">
+                    <%= __('from_beginning') %>
+                </button>
+                <button v-if="showClientForm" class="button_booking_container" id="backButton" type="button"
+                        @click="backBooking">
+                    <%= __('back') %>
+                </button>
+            </div>
+            <div v-if="showSummary" class="info_about_text_time">
+                <p v-if="selectedServices" id="selected-services" v-html="formattedSelectedServices(selectedServices)">
+                </p>
+                <p v-if="totalDuration" id="duration">{{ formattedTIme(totalDuration) }}</p>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+<script type="module">
+
+    import {computed, createApp, onMounted, ref} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+    // Now you can use vuelidate as vuelidate.useVuelidate
+    createApp({
+        setup() {
+            const selectedCategory = ref('');
+            const selectedDate = ref('');
+            const currentLocale = ref('');
+            const selectedServices = ref([]);
+            const selectedWorker = ref(null)
+            const selectedEndTime = ref(null)
+            const selectedStart = ref(null);
+            const selectedEnd = ref(null);
+
+            const services = ref([]);
+            const categories = ref([]);
+            const checkedState = ref({});
+            const allServices = ref([]);
+            const workers = ref([])
+            const highlightedSlots = ref([]);
+
+            const clickedDate = ref(null);
+            const bookedDateTime = ref(null);
+            const startDateTime = ref(null);
+            const endDateTime = ref(null);
+
+
+            const showFirstPart = ref(true)
+            const showSummary = ref(true)
+            const showSecondPart = ref(false)
+            const showTimeTable = ref(false)
+            const showClientForm = ref(false)
+
+            const slots = ref([])
+            const clientData = ref({
+                clientName: '',
+                clientTel: '',
+                clientEmail: '',
+                clientAdditionalInfo: '',
+            });
+            const clientId = ref(null);
+            const orderId = ref(null);
+            const nameError = ref(null)
+            const telError = ref(null)
+            const emailError = ref(null)
+
+
+            const fetchSlots = async (date) => {
+                //Set the maximum allowed date (e.g., one month from the current date)
+                const maxAllowedDate = luxon.DateTime.local().plus({months: 1}).toISODate();
+
+                // Validate if the selected date is within the allowed time frame
+                if (date && luxon.DateTime.fromISO(date) > luxon.DateTime.fromISO(maxAllowedDate)) {
+                    // Display an error or handle it as needed
+                    console.error('Selected date is beyond the allowed time frame.');
+                    return;
+                }
+
+                selectedDate.value = date || luxon.DateTime.local().toISODate();
+                try {
+                    await http.get(`/timeslots?worker=${selectedWorker.value.worker_id}&date=${selectedDate.value}`, response => {
+                        const currentTime = luxon.DateTime.local();
+                        slots.value = response
+                            .map(slot => {
+                                const slotDateTime = luxon.DateTime.fromISO(slot.start);
+
+                                return {
+                                    start: slot.start,
+                                    end: slot.end,
+                                    slotDate: slotDateTime.toISODate(),
+                                    startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
+                                    endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
+                                    isAvailable:
+                                        slotDateTime.weekday === 7 ? false :
+                                            slotDateTime >= currentTime.plus({hours: 1}) ?
+                                                slot.isAvailable :
+                                                false, // set to false if before cutoff
+                                };
+                            })
+
+                            .filter(slot => slot !== null) // Remove null entries
+                    });
+                } catch (error) {
+                    console.error('Error fetching available slots:', error);
+                }
+            };
+
+            const validateField = (value, regex, errorValue, errorMessage) => {
+                const isValid = regex.test(value);
+                errorValue.value = isValid ? null : errorMessage;
+                return isValid;
+            };
+
+            const isValidForm = computed(() => isValidName.value && isValidTel.value && isValidEmail.value);
+
+            const isValidEmail = computed(() => validateField(clientData.value.clientEmail, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, emailError, "Invalid email format"));
+
+            const isValidName = computed(() => validateField(clientData.value.clientName, /^.{3,}$/, nameError, "Name must be at least 3 characters long"));
+
+            const isValidTel = computed(() => validateField(clientData.value.clientTel, /^(\+\d{1,3})?\d{8}$/, telError, "Invalid telephone number format"));
+
+
+            const formatDate = (date) => {
+                return luxon.DateTime.fromISO(date).setLocale(currentLocale.value).toFormat('d.MM.yy (EEE)');
+            };
+
+            const submitClientData = async (event) => {
+                event.preventDefault();
+
+                const {clientName, clientTel, clientEmail, clientAdditionalInfo} = clientData.value;
+                const start = selectedStart.value;
+                const end = selectedEnd.value;
+
+                if (!isValidForm.value) {
+                    console.log("not valid")
+                    return
+                }
+
+                await scheduleEvent(
+                    start,
+                    end,
+                    clickedDate,
+                    selectedDate,
+                    clientName,
+                    clientTel,
+                    clientEmail,
+                    clientAdditionalInfo
+                ).then(async () => {
+                    await sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo);
+                    await sendOrder(clientId.value, totalPrice);
+                    await sendOrderServices(orderId, selectedServices);
+                }).catch(error => {
+                    // Check if the error is due to a conflict
+                    if (error.message === '409') {
+                        return showMessage('Error', `<%= __('scheduling_conflict_error_message') %>`)
+                    }
+
+                    // Handle other errors
+                    return showMessage('Error ' + error.statusCode, error.message);
+                });
+            }
+
+            const handleModalClose = () => {
+
+                cancelBooking();
+
+                // Hide the modal
+                $('#confirmationModal').modal('hide');
+            };
+
+            async function sendOrder(clientID, totalPrice) {
+                const clientId = clientID.clientId;
+
+                try {
+                    const response = await fetch(`/order`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            clientId,
+                            totalPrice: totalPrice.value
+                        }),
+                    });
+
+                    if (response.ok) {
+                        orderId.value = await response.json();
+                    }
+                } catch (error) {
+                    console.error('Error sending client data:', error);
+                }
+            }
+
+            async function sendOrderServices(orderId, selectedServices) {
+                try {
+                    const response = await fetch(`/order_services`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            selectedServices,
+                            orderId: orderId.value,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Client data sent successfully545:', result);
+                    } else {
+                        throw new Error(`${response.status} ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending client data:', error);
+                }
+            }
+
+            async function sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo) {
+                try {
+                    console.log("clientAdditionalInfo", clientAdditionalInfo);
+                    const response = await fetch(`/clients`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            clientName,
+                            clientTel,
+                            clientEmail,
+                            clientAdditionalInfo,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        clientId.value = await response.json();
+                    } else {
+                        throw new Error(`${response.status} ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending client data:', error);
+                }
+            }
+
+            async function scheduleEvent(
+                start,
+                end,
+                clickedDate,
+                selectedDate,
+                clientName,
+                clientTel,
+                clientEmail,
+                clientAdditionalInfo) {
+
+                const selectedDateString = typeof clickedDate === 'string' ? clickedDate :
+                    clickedDate.value || luxon.DateTime.local().toISODate();
+
+                endDateTime.value = selectedDateString + "T" + end;
+                startDateTime.value = selectedDateString + "T" + start;
+
+                await http.post('/schedule-event', {
+                    start: startDateTime.value,
+                    end: endDateTime.value,
+                    clientName,
+                    clientTel,
+                    clientEmail,
+                    clientAdditionalInfo,
+                    selectedServices: selectedServices.value,
+                    selectedWorker: selectedWorker.value.worker_id,
+                }, function (response) {
+
+                    // Show success or error message
+                    if(response.message === 'Success'){
+                        showMessage('Success', '<%= __('booking_success_message') %>', function () {
+
+                            window.location.href = '/'; //redirect to home page
+                        })
+
+                    }else{
+                        showMessage('Error', JSON.stringify(response));
+                    }
+                }, function (error) {
+                    if(error.statusCode === 409){
+                        throw new Error('409');
+                    }else{
+                        throw new Error(error.message);
+                    }
+                })
+            }
+
+            const showMessage = (title, body, closeBtnCallback = null) => {
+
+                // eslint-disable-next-line no-undef
+                const modalHandler = new bootstrap.Modal(document.getElementById('error-modal'), {});
+
+                // eslint-disable-next-line no-undef
+                document.querySelector('#error-modal-title').textContent = title;
+
+                // eslint-disable-next-line no-undef
+                document.querySelector('#error-modal-body').innerHTML = body;
+
+                // Run the callback function when the modal is closed
+                if (closeBtnCallback) {
+
+                    // eslint-disable-next-line no-undef
+                    document.querySelector('#error-modal-close-btn').addEventListener('click', closeBtnCallback);
+                }
+
+                // Show modal
+                modalHandler.show();
+
+            }
+
+            const loadAndDisplayServices = async () => {
+                try {
+
+                    const response = await axios.get(`/services/${selectedCategory.value}`);
+                    services.value = response.data;
+                    console.log("services.value21212", services.value)
+                } catch (error) {
+                    console.error('Error fetching services:', error);
+                }
+            };
+
+            const getCategories = async () => {
+                try {
+                    const response = await axios.get('/category');
+                    categories.value = response.data;
+
+                } catch (error) {
+                    console.error('Error fetching categories:', error);
+                }
+            };
+
+            const toggleServiceSelection = (service) => {
+
+                const serviceToToggle = allServices.value.find(s => s.service_id === service.service_id)
+
+                const isSelected = selectedServices.value.some(selectedService => selectedService.service_id === service.service_id)
+                if (isSelected) {
+                    // Service is already selected, uncheck and remove it
+                    const indexToRemove = selectedServices.value.findIndex(selectedService => selectedService.service_id === service.service_id);
+                    selectedServices.value.splice(indexToRemove, 1);
+                    checkedState.value[service.service_id] = false;
+                } else {
+                    // Service is not selected, check it and add to selectedServices
+                    selectedServices.value.push(serviceToToggle);
+                    checkedState.value[service.service_id] = true;
+                }
+            };
+
+            const totalDuration = computed(() => {
+                return selectedServices.value.reduce((total, service) => {
+                    return total + service.duration_minutes
+                }, 0)
+            });
+
+            const totalPrice = computed(() => {
+                return selectedServices.value.reduce((total, service) => {
+                    console.log("price? ", total + service.price);
+                    return total + service.price
+                }, 0)
+            });
+
+            const formattedTIme = (durationInMinutes) => {
+                const hours = Math.floor(durationInMinutes / 60);
+                const minutes = durationInMinutes % 60;
+
+                // Format the duration as per your requirement
+                return `${hours}.${minutes}h`;
+            };
+
+            const formatAdditionalPrice = (selectedServices = []) => {
+                const servicesWithAdditionalPrice = selectedServices.filter(service => service.is_price_range);
+                if (servicesWithAdditionalPrice.length === 0) {
+                    return '';
+                }
+                return `<%= __('is_price_add') %>`;
+            };
+
+            const formatAdditionalMaterial = (selectedServices = []) => {
+                const servicesWithAdditionalMaterial = selectedServices.filter(service => service.is_additional_material);
+                if (servicesWithAdditionalMaterial.length === 0) {
+                    return '';
+                }
+                return `<%= __('is_add_material') %>`;
+            };
+
+            const formattedSelectedServices = (selectedServices = []) => {
+                if (selectedServices.length === 0) {
+                    return '';
+                }
+
+                const selectedServicesHtml = selectedServices.map(service => service.name).join('<br>');
+
+                return `${selectedServicesHtml}`;
+            };
+
+            const isSubmitDisabled = computed(() => {
+                return selectedServices.value.length === 0;
+            });
+
+            async function fetchWorkers() {
+                const selectedServiceIds = selectedServices.value.map(service => service.service_id);
+
+                const response = await fetch('/workers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(selectedServiceIds)
+                })
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+                workers.value = await response.json()
+                showFirstPart.value = false
+                showSecondPart.value = true
+            }
+
+            const handleSelectedWorkerChange = () => {
+                console.log("worker handled", selectedWorker.value);
+                fetchSlots(selectedDate.value);
+                showTimeTable.value = true
+            };
+
+            const handleDateChange = () => {
+                fetchSlots(selectedDate.value);
+                console.log("date handled", selectedDate.value)
+            };
+
+            const uniqueDates = computed(() => {
+
+                return [...new Set(slots.value.map(s => s.slotDate))];
+            });
+
+            const slotsOnDate = computed(() => {
+                return slots.value.filter(s => {
+                    return s.slotDate === selectedDate.value;
+                });
+            });
+
+            const uniqueTimes = computed(() => {
+                const times = slots.value.map(s => s.startTimeFormatted);
+                return [...new Set(times)];
+            })
+
+            const getSlot = (time, date) => {
+                return slots.value.find(slot => slot.startTimeFormatted === time && slot.slotDate === date);
+            };
+
+            const handleSlotMouseOver = (time, currentDate, totalSlots) => {
+                // const totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
+
+                const currentSlots = slots.value.filter(
+                    slot => slot.startTimeFormatted === time && slot.slotDate === currentDate
+                );
+                if (currentSlots.length === 0) {
+                    console.log('No slots available for the selected time and date.');
+                    return;
+                }
+
+                const currentIndex = slots.value.findIndex(
+                    s => s.startTimeFormatted === time && s.slotDate === currentDate
+                );
+
+                const {allAvailable, highlighted, end} = checkConsecutiveSlots(currentIndex, totalSlots);
+
+                if (allAvailable) {
+                    highlightedSlots.value = highlighted;
+
+                    // Highlight slots in the UI
+                    slots.value.forEach(slot => {
+                        if (slot) {
+                            slot.highlighted = highlighted.includes(slot);
+                        }
+                    });
+
+                    // Store the end time
+                    selectedEndTime.value = end;
+                } else {
+                    highlightedSlots.value = [];
+
+                    slots.value.forEach(slot => {
+                        if (slot) {
+                            slot.highlighted = false;
+                        }
+                    });
+                    console.log('Not available');
+
+                }
+            };
+
+            const checkConsecutiveSlots = (currentIndex, totalSlots) => {
+                totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
+
+                let allAvailable = true;
+                const highlighted = [];
+                let end = null;
+
+                for (let i = 0; i < totalSlots; i++) {
+                    const indexToCheck = currentIndex + i;
+                    if (indexToCheck >= 0 && indexToCheck < slots.value.length) {
+                        highlighted.push(slots.value[indexToCheck]);
+                        if (!slots.value[indexToCheck].isAvailable) {
+                            allAvailable = false;
+                            break;
+                        }
+
+                        end = slots.value[indexToCheck].endTimeFormatted;
+                    } else {
+                        allAvailable = false; // Slot index out of bounds
+                        break;
+                    }
+                }
+
+                return {allAvailable, highlighted, end};
+            };
+
+            const isSlotHighlighted = (time, date) => {
+                const slot = getSlot(time, date);
+                return slot && highlightedSlots.value.includes(slot);
+            };
+
+            const isSlotAvailable = (slot) => {
+                return slot.isAvailable;
+            };
+
+            const handleSlotClick = (time, date, totalSlots) => {
+                const slot = getSlot(time, date);
+
+                if (slot) {
+                    const currentIndex = slots.value.findIndex(s => s.startTimeFormatted === time && s.slotDate === date);
+
+                    const {allAvailable, end} = checkConsecutiveSlots(currentIndex, totalSlots);
+
+                    if (allAvailable && isSlotAvailable(slot)) {
+                        selectedStart.value = slot.startTimeFormatted;
+                        selectedEnd.value = end || selectedEndTime.value;
+                        showClientForm.value = true;
+                        showSummary.value = false;
+                        showTimeTable.value = false;
+                        showSecondPart.value = false;
+                        console.log('Clicked on time:', slot.startTimeFormatted);
+                        clickedDate.value = slot.slotDate;
+                        bookedDateTime.value = slot.slotDate + " at " + slot.startTimeFormatted;
+                        console.log("clickedDate", startDateTime.value);
+
+                    } else {
+                        console.log('Slot is not available or there are not enough consecutive slots');
+                    }
+                } else {
+                    console.log('Slot not found');
+                }
+            };
+
+            const cancelBooking = () => {
+                // Reset all selected data and go back to the initial state
+                selectedCategory.value = '';
+                services.value = [];
+                selectedServices.value = [];
+                checkedState.value = {};
+                workers.value = [];
+                highlightedSlots.value = [];
+                selectedWorker.value = null;
+                selectedDate.value = null;
+                selectedEndTime.value = null;
+                selectedStart.value = null;
+                selectedEnd.value = null;
+                clickedDate.value = null;
+                clientData.value = ref({
+                    clientName: '',
+                    clientTel: '',
+                    clientEmail: '',
+                    clientAdditionalInfo: '',
+                });
+
+                // Show the first part of the booking form
+                showFirstPart.value = true;
+                showSecondPart.value = false;
+                showTimeTable.value = false;
+                showClientForm.value = false;
+            };
+
+            const backBooking = () => {
+                selectedEndTime.value = null;
+                selectedEnd.value = null;
+                selectedWorker.value = null;
+                clickedDate.value = null;
+                highlightedSlots.value = [];
+                clientData.value = ref({
+                    clientName: '',
+                    clientTel: '',
+                    clientEmail: '',
+                    clientAdditionalInfo: '',
+                });
+
+                showSummary.value = true;
+                showSecondPart.value = true;
+                showTimeTable.value = false;
+                showClientForm.value = false;
+            }
+
+            const getLocale = async () => {
+                try {
+                    const response = await axios.get('/curLoc');
+                    currentLocale.value = response.data.currentLocale;
+                    console.log("response", response.data.currentLocale)
+
+                } catch (error) {
+                    console.error('Error fetching available slots:', error);
+                    // Error modal is handled within the http utility
+                }
+                return currentLocale.value;
+            }
+
+            onMounted(async () => {
+
+                // Fetch categories when the component is mounted
+                getCategories();
+                getLocale();
+                const response = await axios.get('/services');
+                allServices.value = response.data
+
+
+            });
+
+            return {
+                totalPrice,
+                formatDate,
+                startDateTime,
+                bookedDateTime,
+                formattedTIme,
+                formatAdditionalPrice,
+                formatAdditionalMaterial,
+                formattedSelectedServices,
+                uniqueDates,
+                getSlot,
+                isSlotHighlighted,
+                slotsOnDate,
+                uniqueTimes,
+                handleModalClose,
+                selectedCategory,
+                selectedServices,
+                totalDuration,
+                services,
+                handleDateChange,
+                handleSlotClick,
+                isSlotAvailable,
+                highlightedSlots,
+                handleSlotMouseOver,
+                categories,
+                checkedState,
+                selectedDate,
+                handleSelectedWorkerChange,
+                isSubmitDisabled,
+                workers,
+                slots,
+                selectedWorker,
+                nameError,
+                telError,
+                emailError,
+                showFirstPart,
+                showSummary,
+                showSecondPart,
+                showTimeTable,
+                showClientForm,
+                fetchWorkers,
+                loadAndDisplayServices,
+                toggleServiceSelection,
+                submitClientData,
+                clientData,
+                backBooking,
+                cancelBooking,
+            };
+        },
+        data() {
+            return {};
+        },
+        methods: {},
+
+    }).mount('#booking');
+</script>
