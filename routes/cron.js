@@ -1,9 +1,8 @@
 const cron = require('node-cron');
-//const {fetchEventsForDateRange} = require('../modules/GoogleCalendar');
+
 const GoogleCalendar = require('../modules/GoogleCalendar');
 const axios = require('axios');
-//const {calendar} = require('googleapis/build/src/apis/calendar');
-//const {calendar} = require('googleapis/build/src/apis/calendar');
+
 
 const googleCalendar = new GoogleCalendar(
     process.env.CLIENT_ID,
@@ -28,14 +27,6 @@ const sendSMS = async (message, to) => {
         to = to.replace(/^\+/, '');
     }
 
-    console.log(
-        'Sending SMS to',
-        to,
-        'with message',
-        message
-    );
-
-
     axios.post('https://api.sendberry.com/SMS/SEND', {
         key: process.env.SENDBERRY_API_KEY,
         name: process.env.SENDBERRY_USERNAME,
@@ -46,18 +37,15 @@ const sendSMS = async (message, to) => {
         callback: function (response) { console.log(response); }, // Optional. Callback function.
         responseformat: 'JSON' // Optional. (JSON or GET)
     }).then(response => {
-        // Handle the response
         console.log(response.data);
     }).catch(error => {
-        // Handle the error
         console.error('Error:', error);
     });
 };
 
 const scheduleCronJob = () => {
-    //cron.schedule('0,15,30,45 * * * *', async () => {
-    cron.schedule('* * * * *', async () => {
-
+    cron.schedule('0,15,30,45 * * * *', async () => {
+   // cron.schedule('* * * * *', async () => {
         // Create a Date object with 0 milliseconds
         const now = new Date();
         now.setMilliseconds(0);
@@ -75,7 +63,6 @@ const scheduleCronJob = () => {
 
             //  console.log('appointments', appointments);
             appointments.forEach((event) => {
-
                 const {summary, start, extendedProperties} = event;
                 const appointmentStart = new Date(start.dateTime);
                 const timeDiff = appointmentStart - now; // Time difference in milliseconds
@@ -83,18 +70,13 @@ const scheduleCronJob = () => {
                 const shortDate = appointmentStart.toLocaleDateString('et-EE', {day: '2-digit', month: '2-digit'});
                 const time = appointmentStart.toLocaleTimeString('et-EE', {hour: '2-digit', minute: '2-digit'});
 
-                if (hoursRemaining === 1 ) {
-
-                    console.log('hoursRemaining', hoursRemaining, summary);
-                    console.log(extendedProperties.private.clientTel);
-
-                    sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
+                if (hoursRemaining === 1) {
+                    sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: 
+                        ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
                 }
                 if( hoursRemaining === 24){
-                    console.log('hoursRemaining24?', hoursRemaining, summary);
-                    console.log(extendedProperties.private.clientTel);
-
-                    sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
+                    sendSMS(`${hoursRemaining}h kuni/until/до Explorer Studio broneeringuni/booking/бронирования: 
+                        ${shortDate} ${time} (${summary})`, extendedProperties.private.clientTel);
                 }
             });
         }));

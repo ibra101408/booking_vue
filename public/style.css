@@ -839,6 +839,7 @@ span.price {
     align-content: center;
     align-items: center;
     padding-bottom: 7%;
+
 }
 
 .workingHours_grid_container {
@@ -1041,6 +1042,9 @@ th {
 
 /*  booking  */
 
+#booking{
+}
+
 .booking_container{
     width: 50%;
     background-color: #fde0d1;
@@ -1078,7 +1082,7 @@ th {
 /* Styling for service checkboxes */
 #serviceCheckboxes {
     margin-bottom: 10px;
-    width: 65%;
+    width: 57%;
 
 }
 #serviceCheckboxes label{
@@ -1096,7 +1100,8 @@ th {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 100%
+    width: 100%;
+    max-width: 480px;
 }
 .final_info_price_container{
     display: flex;
@@ -1245,16 +1250,12 @@ select {
 
 #serviceCheckboxes label {
     display: block;
-    padding: 8px;
+    padding: 8px 8px 8px 0;
     border-radius: 4px;
 }
 .duration{
     font-size: 12px;
     color: #6e6e6e;
-}
-
-#serviceCheckboxes input {
-    margin-right: 8px;
 }
 
 #serviceCheckboxes label:hover {
@@ -1358,6 +1359,7 @@ tbody tr td:first-child {
     }
     #serviceCheckboxes label {
         word-wrap: break-word;
+        padding-left: 25px
     }
 
 }

@@ -1,7 +1,7 @@
 {
   "name": "booking_vue",
   "version": "1.0.0",
-  "description": "",
+  "description": "| Type            | URL                                                                                                    | |:----------------|:-------------------------------------------------------------------------------------------------------| | Live URL        | [https://explorerhairstudio.ee](https://explorerhairstudio.ee)                                         | | Version Control | [https://github.com/ibra101408/booking_vue](https://github.com/ibra101408/booking_vue)                 | | Project Tracker | [https://www.pivotaltracker.com/n/projects/2687382](https://www.pivotaltracker.com/n/projects/2687382) |",
   "main": "index.js",
   "scripts": {
     "prestart": "npm install && eslint . --ext .js --fix",
@@ -31,5 +31,11 @@
     "primevue": "^3.45.0",
     "swagger-ui-express": "^5.0.0",
     "vue": "^3.2.36"
+  },
+  "devDependencies": {
+    "cypress": "^13.6.2"
+  },
+  "directories": {
+    "doc": "doc"
   }
 }

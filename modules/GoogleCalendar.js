@@ -73,7 +73,16 @@ class GoogleCalendar {
      * @returns {Promise<Object>} A promise that resolves to the scheduled event data.
      * @throws {Error} If there's an error in scheduling the event.
      */
-    async scheduleEvent(start, end, clientName, clientTel, clientEmail, clientAdditionalInfo, selectedServices, calendarId) {
+    async scheduleEvent(
+        start,
+        end,
+        clientName,
+        clientTel,
+        clientEmail,
+        clientAdditionalInfo,
+        selectedServices,
+        calendarId
+    ) {
         // Validate input parameters if necessary
         const startDateTimeLocal = DateTime.fromISO(start, {zone: this.timezone});
         const endDateTimeLocal = DateTime.fromISO(end, {zone: this.timezone});
@@ -109,8 +118,6 @@ class GoogleCalendar {
                 }
             },
         });
-        // return googleApiResponse; // Return the scheduled event data
-
     }
 
     async checkEventConflicts(start, end, calendarId) {
@@ -131,7 +138,6 @@ class GoogleCalendar {
         this.validateCalendarId(calendarId);
         const startDateTime = DateTime.fromISO(start).toISO();
         const endDateTime = DateTime.fromISO(end).toISO();
-
         try {
             const response = await this.calendar.events.list({
                 calendarId,

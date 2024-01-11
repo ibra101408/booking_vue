@@ -22,6 +22,7 @@ router.get('/curLoc', async (req, res) => {
     const currentLocale = res.locals.currentLocale;
     res.json({ currentLocale });
 });
+
 router.get('/category', async (req, res) => {
     try {
         const sql = 'SELECT category_id, name FROM category LIMIT 3';
@@ -119,9 +120,9 @@ router.post('/workers', async (req, res) => {
 
 router.post('/clients', async (req, res) => {
     try {
-        const { clientName, clientTel, clientEmail } = req.body;
-        const sql = 'INSERT INTO clients (clientName, clientTel, clientEmail) VALUES (?, ?, ?)';
-        const params = [clientName, clientTel, clientEmail];
+        const { clientName, clientTel, clientEmail, clientAdditionalInfo } = req.body;
+        const sql = 'INSERT INTO clients (clientName, clientTel, clientEmail, additional_info) VALUES (?, ?, ?, ?)';
+        const params = [clientName, clientTel, clientEmail, clientAdditionalInfo];
         const result = await db(sql, params);
 
         res.json({ clientId: result.insertId });

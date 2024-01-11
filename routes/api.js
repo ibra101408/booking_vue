@@ -20,12 +20,11 @@ router.get('/timeslots', async (req, res) => {
     }
 
     const selectedDate = req.query.date || DateTime.local().toISODate();
-    const endDate = DateTime.fromISO(selectedDate).plus({ day: 30 }).toISODate();
+    const endDate = DateTime.fromISO(selectedDate).plus({ day: 7 }).toISODate();
     const selectedWorker = parseInt(req.query.worker);
     const calendarId = selectedWorker === 1 ? process.env.WORKER_1_CALENDAR_ID : process.env.WORKER_2_CALENDAR_ID;
 
     try {
-
         const existingEvents = await googleCalendar.fetchEventsForDateRange(
             selectedDate,
             endDate,
@@ -33,22 +32,17 @@ router.get('/timeslots', async (req, res) => {
         );
 
         const timeSlots = [];
-
-        for (let date = DateTime.fromISO(selectedDate); date.toISODate() <= endDate; date = date.plus({ day: 1 })) {
-
+        for (let date = DateTime.fromISO(selectedDate); date.toISODate() < endDate; date = date.plus({ day: 1 })) {
             const slotsForDate = timeslots.createSlotsForDate(
                 date.toISODate(),
                 existingEvents,
                 parseInt(process.env.START_WORKING_HOUR),
                 parseInt(process.env.END_WORKING_HOUR)
             );
-
             timeSlots.push(...slotsForDate);
-
         }
 
         return res.json(timeSlots);
-
     } catch (error) {
 
         // Print stack trace
@@ -57,7 +51,6 @@ router.get('/timeslots', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-
 
 router.post('/schedule-event', async (req, res) => {
     const {start, end, clientName, clientTel, clientEmail, selectedServices, selectedWorker, clientAdditionalInfo} = req.body;

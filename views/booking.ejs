@@ -16,7 +16,7 @@
                         <select id="categorySelect" v-model="selectedCategory" @change="loadAndDisplayServices">
                             <option v-for="category in categories" :key="category.category_id"
                                     :value="category.category_id">
-                                {{ category.name }}
+                                {{category.name}}
                             </option>
                         </select>
                     </div>
@@ -35,8 +35,8 @@
                             <span></span>
                             <span v-if="service.is_price_range || service.is_additional_material"
                                   :class="{ 'additional_info': service.is_price_range || service.is_additional_material }">
-                                {{ service.is_price_range ? '(al. hind)' : '' }}
-                                {{ service.is_additional_material ? '(+materjal)' : '' }}
+                                {{ service.is_price_range ? `<%= __('is_price_add') %>` : '' }}
+                                {{ service.is_additional_material ? `<%= __('is_add_material') %>`  : '' }}
                             </span>
                             <span class="duration"
                                   :style="{ 'margin-right': (service.is_price_range || service.is_additional_material) ? '8px' : '0' }">
@@ -73,12 +73,11 @@
         <!--TimeTable-->
 
         <div v-if="showTimeTable" class="time_table_container">
-            <table>
+            <table class="timeSlot_table">
                 <thead>
                 <tr>
                     <th></th>
                     <th v-for="date in uniqueDates" :key="date">
-                        <!--TODO: locale weekdays  {{ formatDate(date) }}-->
                         {{ formatDate(date) }}
                     </th>
                 </tr>
@@ -86,13 +85,13 @@
                 <tbody>
                 <tr v-for="time in uniqueTimes" :key="time">
                     <td>{{ time }}</td>
-                    <!--TODO: time at slots-->
                     <td
                             v-for="date in uniqueDates"
                             :key="date"
                             @mouseover="handleSlotMouseOver(time, date)"
                             @click="handleSlotClick(time, date, slot)"
-                            :class="{'unavailable': !getSlot(time, date).isAvailable, 'highlighted-slot': isSlotHighlighted(time, date)}"
+                            :class="{'unavailable': !getSlot(time, date).isAvailable,
+                                'highlighted-slot': isSlotHighlighted(time, date)}"
                     >
 
                         <div v-if="getSlot(time, date)">
@@ -132,10 +131,8 @@
                     <p class="final_info_title"><%= __('selected_services') %></p>
                     <div class="final_info_selected_services_container">
                         <p class="final_info_text" v-html="formattedSelectedServices(selectedServices)">
-                            {{formattedSelectedServices(selectedServices)}}
                         </p>
                         <span v-if="selectedServices" v-html="formatAdditionalMaterial(selectedServices)">
-                                {{ formatAdditionalMaterial(selectedServices) }}
                         </span>
                     </div>
                 </div>
@@ -143,7 +140,6 @@
                     <p class="final_info_title"><%= __('price') %></p>
                     <div class="final_info_price_container">
                         <span v-if="selectedServices" v-html="formatAdditionalPrice(selectedServices)">
-                            {{ formatAdditionalPrice(selectedServices) }}
                         </span>
                         <p>{{ totalPrice }}€</p>
                     </div>
@@ -219,7 +215,6 @@
             </div>
             <div v-if="showSummary" class="info_about_text_time">
                 <p v-if="selectedServices" id="selected-services" v-html="formattedSelectedServices(selectedServices)">
-                    {{formattedSelectedServices(selectedServices)}}
                 </p>
                 <p v-if="totalDuration" id="duration">{{ formattedTIme(totalDuration) }}</p>
             </div>
@@ -228,10 +223,6 @@
 
 
 </div>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
 <script type="module">
@@ -295,35 +286,29 @@
                 }
 
                 selectedDate.value = date || luxon.DateTime.local().toISODate();
-                console.log("selectedWorker.value.worker_id", selectedWorker.value.worker_id)
                 try {
                     await http.get(`/timeslots?worker=${selectedWorker.value.worker_id}&date=${selectedDate.value}`, response => {
                         const currentTime = luxon.DateTime.local();
-                        console.log("selectedWorker.value", selectedWorker.value)
                         slots.value = response
                             .map(slot => {
                                 const slotDateTime = luxon.DateTime.fromISO(slot.start);
 
                                 return {
-                                    start: slot.start, // Add this line for additional logging
-                                    end: slot.end, // Add this line for additional logging
-                                    slotDate: slotDateTime.toISODate(), // Add this line for additional logging
+                                    start: slot.start,
+                                    end: slot.end,
+                                    slotDate: slotDateTime.toISODate(),
                                     startTimeFormatted: luxon.DateTime.fromISO(slot.start).toFormat('HH:mm'),
                                     endTimeFormatted: luxon.DateTime.fromISO(slot.end).toFormat('HH:mm'),
-                                    // weekday: slotDate.toFormat('EEEE'), // Add weekday information
-
                                     isAvailable:
                                         slotDateTime.weekday === 7 ? false :
                                             slotDateTime >= currentTime.plus({hours: 1}) ?
                                                 slot.isAvailable :
                                                 false, // set to false if before cutoff
                                 };
-
                             })
-                            .filter(slot => slot !== null); // Remove null entries
+
+                            .filter(slot => slot !== null) // Remove null entries
                     });
-
-
                 } catch (error) {
                     console.error('Error fetching available slots:', error);
                 }
@@ -345,8 +330,6 @@
 
 
             const formatDate = (date) => {
-
-                console.log("response22", luxon.DateTime.fromISO(date).setLocale(currentLocale.value).toFormat('d.MM.yy (EEE)'))
                 return luxon.DateTime.fromISO(date).setLocale(currentLocale.value).toFormat('d.MM.yy (EEE)');
             };
 
@@ -376,7 +359,6 @@
                     await sendOrder(clientId.value, totalPrice);
                     await sendOrderServices(orderId, selectedServices);
                 }).catch(error => {
-
                     // Check if the error is due to a conflict
                     if (error.message === '409') {
                         return showMessage('Error', `<%= __('scheduling_conflict_error_message') %>`)
@@ -385,7 +367,6 @@
                     // Handle other errors
                     return showMessage('Error ' + error.statusCode, error.message);
                 });
-
             }
 
             const handleModalClose = () => {
@@ -469,12 +450,19 @@
                 }
             }
 
-            async function scheduleEvent(start, end, clickedDate, selectedDate, clientName, clientTel, clientEmail, clientAdditionalInfo) {
+            async function scheduleEvent(
+                start,
+                end,
+                clickedDate,
+                selectedDate,
+                clientName,
+                clientTel,
+                clientEmail,
+                clientAdditionalInfo) {
 
-                const selectedDateString = typeof clickedDate === 'string' ? clickedDate : clickedDate.value || luxon.DateTime.local().toISODate();
+                const selectedDateString = typeof clickedDate === 'string' ? clickedDate :
+                    clickedDate.value || luxon.DateTime.local().toISODate();
 
-                //  startDateTime.value = "2023-12-30T09:00";
-                //  endDateTime.value = "2023-12-30T10:00";
                 endDateTime.value = selectedDateString + "T" + end;
                 startDateTime.value = selectedDateString + "T" + start;
 
@@ -493,14 +481,12 @@
                     if(response.message === 'Success'){
                         showMessage('Success', '<%= __('booking_success_message') %>', function () {
 
-                            // Redirect to /
-                            window.location.href = '/';
+                            window.location.href = '/'; //redirect to home page
                         })
 
                     }else{
                         showMessage('Error', JSON.stringify(response));
                     }
-
                 }, function (error) {
                     if(error.statusCode === 409){
                         throw new Error('409');
@@ -508,8 +494,6 @@
                         throw new Error(error.message);
                     }
                 })
-
-
             }
 
             const showMessage = (title, body, closeBtnCallback = null) => {
@@ -599,7 +583,7 @@
                 if (servicesWithAdditionalPrice.length === 0) {
                     return '';
                 }
-                return `al.hind`;
+                return `<%= __('is_price_add') %>`;
             };
 
             const formatAdditionalMaterial = (selectedServices = []) => {
@@ -607,7 +591,7 @@
                 if (servicesWithAdditionalMaterial.length === 0) {
                     return '';
                 }
-                return `+materjal`;
+                return `<%= __('is_add_material') %>`;
             };
 
             const formattedSelectedServices = (selectedServices = []) => {
@@ -615,10 +599,7 @@
                     return '';
                 }
 
-                console.log("selectedServices11111", selectedServices);
-
                 const selectedServicesHtml = selectedServices.map(service => service.name).join('<br>');
-                //const additionalPriceHtml = formatAdditionalPrice(selectedServices);${additionalPriceHtml}
 
                 return `${selectedServicesHtml}`;
             };
@@ -790,6 +771,7 @@
                 workers.value = [];
                 highlightedSlots.value = [];
                 selectedWorker.value = null;
+                selectedDate.value = null;
                 selectedEndTime.value = null;
                 selectedStart.value = null;
                 selectedEnd.value = null;
@@ -823,7 +805,7 @@
 
                 showSummary.value = true;
                 showSecondPart.value = true;
-                showTimeTable.value = true;
+                showTimeTable.value = false;
                 showClientForm.value = false;
             }
 

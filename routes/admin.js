@@ -4,7 +4,6 @@ const router = express.Router();
 const db = require('../modules/database');
 const basicAuth = require('basic-auth');
 
-
 const adminCredentials = {
     username: process.env.ADMIN_USERNAME,
     password: process.env.ADMIN_PASSWORD
@@ -13,7 +12,11 @@ const adminCredentials = {
 router.use((req, res, next) => {
     const user = basicAuth(req);
 
-    if (!user || !adminCredentials.username || user.name !== adminCredentials.username || user.pass !== adminCredentials.password) {
+    if (!user ||
+        !adminCredentials.username ||
+        user.name !== adminCredentials.username ||
+        user.pass !== adminCredentials.password
+    ) {
         res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
         res.sendStatus(401);
         return;

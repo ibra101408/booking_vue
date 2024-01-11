@@ -15,7 +15,7 @@ class Timeslots {
      * @param {number} endHour - The ending hour (24-hour format) for time slots.
      * @returns {Array} An array of time slot objects.
      */
-    static createSlotsForDate(date, events, startHour = 10, endHour = 18) {
+    static createSlotsForDate(date, events, startHour = 10, endHour = 20) {
         if (!this.#isDateAndHoursValid(date, startHour, endHour)) {
             throw new Error('Invalid date or hours');
         }
