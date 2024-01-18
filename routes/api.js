@@ -3,6 +3,7 @@ const router = express.Router();
 const GoogleCalendar = require('../modules/GoogleCalendar');
 const timeslots = require('../modules/timeslots');
 const {DateTime} = require('luxon');
+const {sendSMS} = require('./cron');
 
 const googleCalendar = new GoogleCalendar(
     process.env.CLIENT_ID,
@@ -68,7 +69,7 @@ router.post('/schedule-event', async (req, res) => {
             selectedServices,
             calendarId,
         );
-
+        sendSMS(`New appointment for ${clientName} at ${start}`, clientTel);
         res.status(200).json({message: 'Success'});
 
     } catch (error) {

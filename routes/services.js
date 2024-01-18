@@ -24,8 +24,10 @@ router.get('/curLoc', async (req, res) => {
 });
 
 router.get('/category', async (req, res) => {
+    const currentLocale = res.locals.currentLocale;
+
     try {
-        const sql = 'SELECT category_id, name FROM category LIMIT 3';
+        const sql = `SELECT category_id, ${currentLocale} AS name FROM categories LIMIT 3`;
         const rows = await db(sql);
 
         const category = rows.map(row => ({

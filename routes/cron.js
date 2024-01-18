@@ -45,7 +45,7 @@ const sendSMS = async (message, to) => {
 
 const scheduleCronJob = () => {
     cron.schedule('0,15,30,45 * * * *', async () => {
-   // cron.schedule('* * * * *', async () => {
+        // cron.schedule('* * * * *', async () => {
         // Create a Date object with 0 milliseconds
         const now = new Date();
         now.setMilliseconds(0);
@@ -82,4 +82,4 @@ const scheduleCronJob = () => {
         }));
     });
 };
-module.exports = {scheduleCronJob};
+module.exports = {scheduleCronJob, sendSMS};
