@@ -609,7 +609,7 @@ span.price {
 .price_card {
     position: relative;
     padding: 80px 15px;
-    background: #ceb19b;
+    background: var(--primary_color);
 }
 
 .price_card::before,
@@ -839,7 +839,6 @@ span.price {
     align-content: center;
     align-items: center;
     padding-bottom: 7%;
-
 }
 
 .workingHours_grid_container {
@@ -1043,6 +1042,7 @@ th {
 /*  booking  */
 
 #booking{
+    padding-top: 7%;
 }
 
 .booking_container{

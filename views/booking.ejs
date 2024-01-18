@@ -36,7 +36,7 @@
                             <span v-if="service.is_price_range || service.is_additional_material"
                                   :class="{ 'additional_info': service.is_price_range || service.is_additional_material }">
                                 {{ service.is_price_range ? `<%= __('is_price_add') %>` : '' }}
-                                {{ service.is_additional_material ? `<%= __('is_add_material') %>`  : '' }}
+                                {{ service.is_additional_material ? `<%= __('is_add_material') %>` : '' }}
                             </span>
                             <span class="duration"
                                   :style="{ 'margin-right': (service.is_price_range || service.is_additional_material) ? '8px' : '0' }">
@@ -227,7 +227,7 @@
 <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
 <script type="module">
 
-    import {computed, createApp, onMounted, ref} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+    import {computed, createApp, onMounted, ref} from 'https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js'
 
     // Now you can use vuelidate as vuelidate.useVuelidate
     createApp({
@@ -415,7 +415,6 @@
 
                     if (response.ok) {
                         const result = await response.json();
-                        console.log('Client data sent successfully545:', result);
                     } else {
                         throw new Error(`${response.status} ${response.statusText}`);
                     }
@@ -426,7 +425,6 @@
 
             async function sendClientData(clientName, clientTel, clientEmail, clientAdditionalInfo) {
                 try {
-                    console.log("clientAdditionalInfo", clientAdditionalInfo);
                     const response = await fetch(`/clients`, {
                         method: 'POST',
                         headers: {
@@ -478,19 +476,19 @@
                 }, function (response) {
 
                     // Show success or error message
-                    if(response.message === 'Success'){
+                    if (response.message === 'Success') {
                         showMessage('Success', '<%= __('booking_success_message') %>', function () {
 
                             window.location.href = '/'; //redirect to home page
                         })
 
-                    }else{
+                    } else {
                         showMessage('Error', JSON.stringify(response));
                     }
                 }, function (error) {
-                    if(error.statusCode === 409){
+                    if (error.statusCode === 409) {
                         throw new Error('409');
-                    }else{
+                    } else {
                         throw new Error(error.message);
                     }
                 })
@@ -524,7 +522,6 @@
 
                     const response = await axios.get(`/services/${selectedCategory.value}`);
                     services.value = response.data;
-                    console.log("services.value21212", services.value)
                 } catch (error) {
                     console.error('Error fetching services:', error);
                 }
@@ -565,7 +562,6 @@
 
             const totalPrice = computed(() => {
                 return selectedServices.value.reduce((total, service) => {
-                    console.log("price? ", total + service.price);
                     return total + service.price
                 }, 0)
             });
@@ -627,7 +623,6 @@
             }
 
             const handleSelectedWorkerChange = () => {
-                console.log("worker handled", selectedWorker.value);
                 fetchSlots(selectedDate.value);
                 showTimeTable.value = true
             };
@@ -658,7 +653,6 @@
             };
 
             const handleSlotMouseOver = (time, currentDate, totalSlots) => {
-                // const totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
 
                 const currentSlots = slots.value.filter(
                     slot => slot.startTimeFormatted === time && slot.slotDate === currentDate
@@ -668,11 +662,17 @@
                     return;
                 }
 
+                // Check if the current slot's date is the same as the selected date
+                if (currentSlots[0].slotDate !== currentDate) {
+                    console.log('No slots available for the selected time and date.');
+                    return;
+                }
+
                 const currentIndex = slots.value.findIndex(
                     s => s.startTimeFormatted === time && s.slotDate === currentDate
                 );
 
-                const {allAvailable, highlighted, end} = checkConsecutiveSlots(currentIndex, totalSlots);
+                const {allAvailable, highlighted, end} = checkConsecutiveSlots(currentIndex, totalSlots, currentDate);
 
                 if (allAvailable) {
                     highlightedSlots.value = highlighted;
@@ -694,12 +694,10 @@
                             slot.highlighted = false;
                         }
                     });
-                    console.log('Not available');
-
                 }
             };
 
-            const checkConsecutiveSlots = (currentIndex, totalSlots) => {
+            const checkConsecutiveSlots = (currentIndex, totalSlots, currentDate) => {
                 totalSlots = totalDuration.value / 15; // Assuming each slot is 15 minutes
 
                 let allAvailable = true;
@@ -709,13 +707,20 @@
                 for (let i = 0; i < totalSlots; i++) {
                     const indexToCheck = currentIndex + i;
                     if (indexToCheck >= 0 && indexToCheck < slots.value.length) {
-                        highlighted.push(slots.value[indexToCheck]);
-                        if (!slots.value[indexToCheck].isAvailable) {
-                            allAvailable = false;
+                        const slot = slots.value[indexToCheck];
+
+                        //Check if the slot belongs to the same day
+                        if (slot.slotDate === currentDate) {
+                            highlighted.push(slot);
+                            if (!slot.isAvailable) {
+                                allAvailable = false;
+                                break;
+                            }
+                            end = slot.endTimeFormatted;
+                        } else {
+                            allAvailable = false; // Slots span across multiple days
                             break;
                         }
-
-                        end = slots.value[indexToCheck].endTimeFormatted;
                     } else {
                         allAvailable = false; // Slot index out of bounds
                         break;
@@ -740,7 +745,7 @@
                 if (slot) {
                     const currentIndex = slots.value.findIndex(s => s.startTimeFormatted === time && s.slotDate === date);
 
-                    const {allAvailable, end} = checkConsecutiveSlots(currentIndex, totalSlots);
+                    const {allAvailable, end} = checkConsecutiveSlots(currentIndex, totalSlots, date);
 
                     if (allAvailable && isSlotAvailable(slot)) {
                         selectedStart.value = slot.startTimeFormatted;
@@ -749,10 +754,8 @@
                         showSummary.value = false;
                         showTimeTable.value = false;
                         showSecondPart.value = false;
-                        console.log('Clicked on time:', slot.startTimeFormatted);
                         clickedDate.value = slot.slotDate;
                         bookedDateTime.value = slot.slotDate + " at " + slot.startTimeFormatted;
-                        console.log("clickedDate", startDateTime.value);
 
                     } else {
                         console.log('Slot is not available or there are not enough consecutive slots');
