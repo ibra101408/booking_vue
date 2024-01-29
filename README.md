@@ -2,7 +2,7 @@
 
 | Type            | URL                                                                                                    |
 |:----------------|:-------------------------------------------------------------------------------------------------------|
-| Live URL        | [https://explorerhairstudio.ee](https://explorerhairstudio.ee)                                         |
+| Live URL        | [https://explorerstudio.kristaleks.ee](https://explorerstudio.kristaleks.ee)                           |
 | Version Control | [https://github.com/ibra101408/booking_vue](https://github.com/ibra101408/booking_vue)                 |
 | Project Tracker | [https://www.pivotaltracker.com/n/projects/2687382](https://www.pivotaltracker.com/n/projects/2687382) |
 
